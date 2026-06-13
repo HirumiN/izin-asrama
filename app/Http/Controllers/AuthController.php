@@ -19,12 +19,29 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        $request->validate([
+            'login' => 'required|string',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
+        $login = $request->input('login');
+        $password = $request->input('password');
+        $remember = $request->filled('remember');
+
+        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+            $credentials = ['email' => $login, 'password' => $password];
+            $attempt = Auth::attempt($credentials, $remember);
+        } else {
+            $student = \App\Models\Student::with('user')->where('nim', $login)->first();
+            if ($student && $student->user) {
+                $credentials = ['email' => $student->user->email, 'password' => $password];
+                $attempt = Auth::attempt($credentials, $remember);
+            } else {
+                $attempt = false;
+            }
+        }
+
+        if ($attempt) {
             $request->session()->regenerate();
 
             $user = Auth::user();
@@ -38,8 +55,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau sandi salah.',
-        ])->onlyInput('email');
+            'login' => 'NIM/Email atau sandi salah.',
+        ])->onlyInput('login');
     }
 
     public function logout(Request $request)

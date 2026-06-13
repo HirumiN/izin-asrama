@@ -25,18 +25,18 @@
         <form method="POST" action="{{ route('login') }}" class="space-y-6">
             @csrf
 
-            <!-- Email Address / NIM -->
+            <!-- NIM / Email Address -->
             <div>
-                <label for="email" class="block text-sm font-semibold text-slate-700">
-                    Alamat Email (atau Akun Terdaftar)
+                <label for="login" class="block text-sm font-semibold text-slate-700">
+                    NIM atau Alamat Email
                 </label>
                 <div class="mt-1">
-                    <input id="email" name="email" type="email" autocomplete="email" required 
-                        value="{{ old('email') }}"
-                        class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-955 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm"
-                        placeholder="nama@asrama.com">
+                    <input id="login" name="login" type="text" required 
+                        value="{{ old('login') }}"
+                        class="w-full mt-1 px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-955 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm"
+                        placeholder="NIM atau email@asrama.com">
                 </div>
-                @error('email')
+                @error('login')
                     <span class="text-rose-600 text-xs mt-1 block font-semibold">{{ $message }}</span>
                 @enderror
             </div>
