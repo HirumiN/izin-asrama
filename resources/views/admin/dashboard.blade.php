@@ -5,10 +5,7 @@
 
 @section('content')
 @php
-    $pendingPesiar = $pendingPermits->where('type', 'pesiar');
-    $pendingBermalam = $pendingPermits->where('type', 'bermalam');
-    $activePesiar = $activePermits->where('type', 'pesiar');
-    $activeBermalam = $activePermits->where('type', 'bermalam');
+    // Paginated lists are passed directly from PermitController
 @endphp
 
 <div class="space-y-10">
@@ -20,7 +17,7 @@
                 <span class="w-2.5 h-2.5 bg-yellow-500 rounded-full animate-pulse"></span>
                 Pengajuan Masuk / Menunggu ACC
                 <span class="ml-2 px-2.5 py-0.5 bg-yellow-50 border border-yellow-250 text-yellow-700 text-xs font-bold rounded-full">
-                    {{ $pendingPermits->count() }}
+                    {{ $pendingPermitsCount }}
                 </span>
             </h2>
 
@@ -28,11 +25,11 @@
             <div class="flex p-1 bg-slate-100 rounded-xl border border-slate-200/60 w-full sm:w-72">
                 <button type="button" onclick="switchPendingTab('pesiar')" id="tab-pending-pesiar"
                     class="flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-white bg-blue-600 shadow-sm">
-                    Izin Pesiar ({{ $pendingPesiar->count() }})
+                    Izin Pesiar ({{ $pendingPesiar->total() }})
                 </button>
                 <button type="button" onclick="switchPendingTab('bermalam')" id="tab-pending-bermalam"
                     class="flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-slate-500 hover:text-slate-800">
-                    Izin Bermalam ({{ $pendingBermalam->count() }})
+                    Izin Bermalam ({{ $pendingBermalam->total() }})
                 </button>
             </div>
         </div>
@@ -104,6 +101,10 @@
                         </table>
                     </div>
                 </form>
+                <!-- Pagination Links -->
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $pendingPesiar->links() }}
+                </div>
             @endif
         </div>
 
@@ -182,6 +183,10 @@
                         </table>
                     </div>
                 </form>
+                <!-- Pagination Links -->
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $pendingBermalam->links() }}
+                </div>
             @endif
         </div>
     </div>
@@ -193,7 +198,7 @@
                 <span class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></span>
                 Mahasiswa Sedang Keluar (Izin Aktif)
                 <span class="ml-2 px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold rounded-full">
-                    {{ $activePermits->count() }}
+                    {{ $activePermitsCount }}
                 </span>
             </h2>
 
@@ -201,11 +206,11 @@
             <div class="flex p-1 bg-slate-100 rounded-xl border border-slate-200/60 w-full sm:w-72">
                 <button type="button" onclick="switchActiveTab('pesiar')" id="tab-active-pesiar"
                     class="flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-white bg-blue-600 shadow-sm">
-                    Izin Pesiar ({{ $activePesiar->count() }})
+                    Izin Pesiar ({{ $activePesiar->total() }})
                 </button>
                 <button type="button" onclick="switchActiveTab('bermalam')" id="tab-active-bermalam"
                     class="flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-200 text-slate-500 hover:text-slate-800">
-                    Izin Bermalam ({{ $activeBermalam->count() }})
+                    Izin Bermalam ({{ $activeBermalam->total() }})
                 </button>
             </div>
         </div>
@@ -270,6 +275,10 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Links -->
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $activePesiar->links() }}
+                </div>
             @endif
         </div>
 
@@ -332,6 +341,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination Links -->
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $activeBermalam->links() }}
                 </div>
             @endif
         </div>
@@ -523,6 +536,15 @@
         
         // Setup bulk action untuk Bermalam Pending
         setupBulkHandlers('bermalam');
+
+        // Auto-switch tabs based on pagination params in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pending_bermalam_page')) {
+            switchPendingTab('bermalam');
+        }
+        if (urlParams.has('active_bermalam_page')) {
+            switchActiveTab('bermalam');
+        }
     });
 
     function setupBulkHandlers(type) {
@@ -583,4 +605,4 @@
         form.submit();
     }
 </script>
- q@endsection
+@endsection

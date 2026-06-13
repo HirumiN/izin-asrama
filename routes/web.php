@@ -25,6 +25,7 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     Route::post('/permits/{permit}/reject', [AdminPermitController::class, 'reject'])->name('permits.reject');
     Route::post('/permits/{permit}/return', [AdminPermitController::class, 'markReturned'])->name('permits.return');
     Route::post('/permits/bulk', [AdminPermitController::class, 'bulkAction'])->name('permits.bulk');
+    Route::get('/students', [AdminStudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
     Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
 });

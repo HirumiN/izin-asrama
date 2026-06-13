@@ -97,12 +97,12 @@
                         Dashboard
                     </a>
                     
-                    <a href="{{ route('admin.students.create') }}" 
-                       class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition duration-150 {{ Route::is('admin.students.create') ? 'bg-blue-600 text-white shadow-sm glow-blue' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+                     <a href="{{ route('admin.students.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition duration-150 {{ Route::is('admin.students.index') ? 'bg-blue-600 text-white shadow-sm glow-blue' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 15 19.128ZM8.625 11.25a3.375 3.375 0 1 1 0-6.75 3.375 3.375 0 0 1 0 6.75ZM15.375 12a3.375 3.375 0 1 0 0-6.75 3.375 3.375 0 0 0 0 6.75Z" />
                         </svg>
-                        Tambah Mahasiswa
+                        Daftar Mahasiswa
                     </a>
                 @else
                     <!-- Menu Mahasiswa -->

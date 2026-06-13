@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support5\Facades\Hash; // Wait, it's Illuminate\Support\Facades\Hash, let's fix the typo in my head.
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
@@ -47,6 +47,27 @@ class StudentController extends Controller
             ]);
         });
 
-        return redirect()->route('admin.dashboard')->with('success', 'Akun mahasiswa baru berhasil dibuat.');
+        return redirect()->route('admin.students.index')->with('success', 'Akun mahasiswa baru berhasil dibuat.');
+    }
+
+    public function index(Request $request)
+    {
+        $query = Student::with('user');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nim', 'like', '%' . $search . '%')
+                  ->orWhere('dorm_room', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQ) use ($search) {
+                      $userQ->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $students = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+
+        return view('admin.students.index', compact('students'));
     }
 }
