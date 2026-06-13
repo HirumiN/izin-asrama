@@ -33,22 +33,6 @@ Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web
 
 ---
 
-## 🚀 Langkah Instalasi & Menjalankan Projek
-
-Ikuti langkah-langkah di bawah ini untuk menjalankan projek di lingkungan lokal Anda:
-
-
-
-## 🔑 Akun Demo (Credentials)
-
-Gunakan akun berikut untuk masuk ke sistem:
-
-| Peran (Role) | Email | Password |
-| :--- | :--- | :--- |
-| **Pengelola (Admin)** | `admin@asrama.com` | `password` |
-| **Mahasiswa (Student)** | `andi@asrama.com` | `password` |
-
----
 
 ## 📂 Struktur File Utama (Kustomisasi)
 
