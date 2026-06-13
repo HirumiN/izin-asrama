@@ -1,0 +1,116 @@
+# 🚪 Sistem Izin Keluar-Masuk Asrama (E-Izin Asrama)
+
+Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web modern untuk mendigitalisasi proses pengajuan, persetujuan, dan pencatatan izin mahasiswa asrama secara real-time. Didesain dengan estetika **Light Mode** yang bersih, minimalis, dan kontras tinggi menggunakan warna dasar **Royal Blue** (`blue-600`) dan **Slate**.
+
+---
+
+## 🌟 Fitur Utama
+
+### 1. 🧑‍🎓 Dashboard Mahasiswa
+* **Form Pengajuan Izin**: Mendukung dua jenis izin keluar:
+  * **Pesiar**: Keluar dan kembali pada hari yang sama dengan batas kembali otomatis pukul 21:00.
+  * **Bermalam**: Keluar untuk menginap di luar asrama dengan input tanggal kembali (batas kembali otomatis pukul 17:00).
+* **Riwayat Izin Personal**: Memantau status permohonan aktif, disetujui, ditolak, atau riwayat kembali.
+
+### 2. 🛡️ Dashboard Pengelola (Admin)
+* **Tab Switcher Jenis Izin**: Mengelompokkan tabel pengajuan pending dan izin aktif menjadi **Izin Pesiar** & **Izin Bermalam** demi penyajian informasi yang bersih dan rapi.
+* **Bulk Action (Aksi Massal)**: Memilih beberapa permohonan sekaligus untuk disetujui (**Setujui Terpilih**) atau ditolak (**Tolak Terpilih**) secara massal dalam satu kali klik.
+* **Konfirmasi Lapor Kembali**: Pencatatan kepulangan mahasiswa asrama secara real-time dengan penghitungan otomatis durasi keterlambatan jika melewati batas waktu.
+* **Filter & Riwayat Menyeluruh**: Pencarian riwayat izin mahasiswa berdasarkan Nama/NIM, tanggal keluar, dan status izin.
+* **Registrasi Siswa Baru**: Form input khusus bagi admin untuk membuat akun mahasiswa baru lengkap dengan data NIM, kamar, dan nomor telepon.
+
+### 3. 🎨 Desain & UI/UX Premium
+* **Global Top Bar**: Menghapus kartu header lama dan menggantinya dengan Top Bar konsisten yang menampilkan nama halaman serta profil user aktif.
+* **Sticky Sidebar**: Navigasi sidebar tetap di posisinya (*sticky*) saat menggulir halaman agar menu penting seperti tombol *Keluar* (Logout) selalu dapat diakses dengan cepat.
+* **Interaktivitas Pointer**: Semua komponen interaktif (tombol, checkbox, tab, link, label) memiliki hover state dengan mouse pointer (`cursor: pointer`) yang konsisten.
+* **Bebas Gradasi**: Menggunakan desain solid warna datar (*flat high-contrast*) yang elegan dan ramah keterbacaan.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Backend**: Laravel 11 (PHP 8.2+)
+* **Frontend Logic**: Blade Templates & JavaScript (Vanilla JS)
+* **Styling**: Tailwind CSS
+* **Asset Bundler**: Vite
+* **Database**: SQLite / MySQL
+
+---
+
+## 🚀 Langkah Instalasi & Menjalankan Projek
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan projek di lingkungan lokal Anda:
+
+### 1. Klon Repositori & Masuk ke Direktori
+```bash
+git clone <repository-url>
+cd izin-asrama
+```
+
+### 2. Instal Dependensi Composer (PHP)
+```bash
+composer install
+```
+
+### 3. Instal Dependensi NPM (JS/CSS)
+```bash
+npm install
+```
+
+### 4. Konfigurasi Environment File
+Salin file `.env.example` ke `.env`:
+```bash
+cp .env.example .env
+```
+Sesuaikan konfigurasi database di dalam file `.env` Anda.
+
+### 5. Generate Application Key
+```bash
+php artisan key:generate
+```
+
+### 6. Jalankan Migrasi & Database Seeder
+Perintah ini akan membuat tabel dan mengisi akun demo awal:
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 7. Build Aset Frontend
+Jalankan dev server Vite untuk pengembangan:
+```bash
+npm run dev
+```
+Atau build aset untuk produksi:
+```bash
+npm run build
+```
+
+### 8. Jalankan Server Lokal Laravel
+```bash
+php artisan serve
+```
+Akses aplikasi melalui browser di [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+---
+
+## 🔑 Akun Demo (Credentials)
+
+Gunakan akun berikut untuk masuk ke sistem:
+
+| Peran (Role) | Email | Password |
+| :--- | :--- | :--- |
+| **Pengelola (Admin)** | `admin@asrama.com` | `password` |
+| **Mahasiswa (Student)** | `andi@asrama.com` | `password` |
+
+---
+
+## 📂 Struktur File Utama (Kustomisasi)
+
+* `app/Http/Controllers/`
+  * `Admin/PermitController.php`: Logika manajemen persetujuan izin, lapor kembali, dan aksi massal pengelola.
+  * `Student/PermitController.php`: Logika pengajuan izin dari sisi mahasiswa.
+* `resources/views/`
+  * `layouts/app.blade.php`: Layout dasar aplikasi dengan Sidebar Sticky & Global Top Bar.
+  * `admin/dashboard.blade.php`: Tampilan dashboard pengelola lengkap dengan filter, tab switcher, dan bulk action.
+  * `student/dashboard.blade.php`: Tampilan dashboard mahasiswa lengkap dengan form pengajuan dinamis.
+* `routes/web.php`: Rute routing web dengan middleware role.
