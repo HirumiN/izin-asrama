@@ -1,6 +1,6 @@
 # 🚪 Sistem Izin Keluar-Masuk Asrama (E-Izin Asrama)
 
-Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web modern untuk mendigitalisasi proses pengajuan, persetujuan, dan pencatatan izin mahasiswa asrama secara real-time. Didesain dengan estetika **Light Mode** yang bersih, minimalis, dan kontras tinggi menggunakan warna dasar **Royal Blue** (`blue-600`) dan **Slate**.
+Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web modern untuk mendigitalisasi proses pengajuan, persetujuan, dan pencatatan izin mahasiswa asrama secara real-time.
 
 ---
 
@@ -19,11 +19,7 @@ Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web
 * **Filter & Riwayat Menyeluruh**: Pencarian riwayat izin mahasiswa berdasarkan Nama/NIM, tanggal keluar, dan status izin.
 * **Registrasi Siswa Baru**: Form input khusus bagi admin untuk membuat akun mahasiswa baru lengkap dengan data NIM, kamar, dan nomor telepon.
 
-### 3. 🎨 Desain & UI/UX Premium
-* **Global Top Bar**: Menghapus kartu header lama dan menggantinya dengan Top Bar konsisten yang menampilkan nama halaman serta profil user aktif.
-* **Sticky Sidebar**: Navigasi sidebar tetap di posisinya (*sticky*) saat menggulir halaman agar menu penting seperti tombol *Keluar* (Logout) selalu dapat diakses dengan cepat.
-* **Interaktivitas Pointer**: Semua komponen interaktif (tombol, checkbox, tab, link, label) memiliki hover state dengan mouse pointer (`cursor: pointer`) yang konsisten.
-* **Bebas Gradasi**: Menggunakan desain solid warna datar (*flat high-contrast*) yang elegan dan ramah keterbacaan.
+
 
 ---
 
@@ -41,57 +37,7 @@ Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web
 
 Ikuti langkah-langkah di bawah ini untuk menjalankan projek di lingkungan lokal Anda:
 
-### 1. Klon Repositori & Masuk ke Direktori
-```bash
-git clone <repository-url>
-cd izin-asrama
-```
 
-### 2. Instal Dependensi Composer (PHP)
-```bash
-composer install
-```
-
-### 3. Instal Dependensi NPM (JS/CSS)
-```bash
-npm install
-```
-
-### 4. Konfigurasi Environment File
-Salin file `.env.example` ke `.env`:
-```bash
-cp .env.example .env
-```
-Sesuaikan konfigurasi database di dalam file `.env` Anda.
-
-### 5. Generate Application Key
-```bash
-php artisan key:generate
-```
-
-### 6. Jalankan Migrasi & Database Seeder
-Perintah ini akan membuat tabel dan mengisi akun demo awal:
-```bash
-php artisan migrate:fresh --seed
-```
-
-### 7. Build Aset Frontend
-Jalankan dev server Vite untuk pengembangan:
-```bash
-npm run dev
-```
-Atau build aset untuk produksi:
-```bash
-npm run build
-```
-
-### 8. Jalankan Server Lokal Laravel
-```bash
-php artisan serve
-```
-Akses aplikasi melalui browser di [http://127.0.0.1:8000](http://127.0.0.1:8000).
-
----
 
 ## 🔑 Akun Demo (Credentials)
 

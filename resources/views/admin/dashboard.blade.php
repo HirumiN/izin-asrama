@@ -583,4 +583,4 @@
         form.submit();
     }
 </script>
-@endsection
+ q@endsection
