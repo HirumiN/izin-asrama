@@ -12,7 +12,43 @@
         <!-- Kolom Kiri: Form atau Status Aktif -->
         <div class="lg:col-span-2 space-y-6">
             
-            @if($activePermit)
+            @if($student->isSuspended())
+                <!-- KARTU PENANGGUHAN -->
+                <div class="p-8 glass-card border-rose-200/60 space-y-6" style="box-shadow: 0 10px 30px rgba(239, 68, 68, 0.08);">
+                    <div class="flex items-center justify-between pb-4 border-b border-rose-100">
+                        <div>
+                            <span class="px-3 py-1 bg-rose-50 border border-rose-100 rounded-full text-rose-600 text-xs font-bold uppercase tracking-wider">
+                                Hak Izin Ditangguhkan
+                            </span>
+                            <h2 class="text-xl font-bold text-slate-900 mt-3">
+                                Anda Tidak Dapat Mengajukan Izin
+                            </h2>
+                        </div>
+                        <div class="p-3 bg-rose-50 border border-rose-100 rounded-2xl text-rose-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="p-5 bg-rose-50 border border-rose-100 rounded-xl space-y-3">
+                        <p class="text-sm text-rose-800 font-semibold leading-relaxed">
+                            Hak izin keluar asrama Anda telah <strong>ditangguhkan</strong> oleh sistem karena riwayat keterlambatan kepulangan.
+                        </p>
+                        <p class="text-xs text-rose-700 font-medium">
+                            Ditangguhkan sejak: <strong>{{ $student->suspended_at ? $student->suspended_at->translatedFormat('d F Y, H:i') . ' WIB' : '-' }}</strong>
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-slate-600 flex items-start gap-2.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Untuk mencabut penangguhan, silakan hubungi <strong>pengelola asrama</strong> secara langsung. Pengelola memiliki wewenang untuk mengaktifkan kembali hak izin Anda setelah evaluasi.</span>
+                    </div>
+                </div>
+
+            @elseif($activePermit)
                 <!-- KARTU IZIN AKTIF -->
                 <div class="p-8 glass-card glow-blue border-blue-200/60 space-y-6">
                     <div class="flex items-center justify-between pb-4 border-b border-slate-200/80">

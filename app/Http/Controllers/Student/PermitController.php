@@ -20,19 +20,19 @@ class PermitController extends Controller
         }
 
         // Mengambil pengajuan aktif (yang sudah di-ACC tapi belum kembali)
-        $activePermit = Permit::where('student_id', $student->id)
-            ->where('status', 'approved')
+        $activePermit = $student->permits()
+            ->where(['status' => 'approved'])
             ->first();
 
         // Mengambil pengajuan yang masih menunggu persetujuan
-        $pendingPermit = Permit::where('student_id', $student->id)
-            ->where('status', 'pending')
+        $pendingPermit = $student->permits()
+            ->where(['status' => 'pending'])
             ->first();
 
         // Mengambil riwayat izin terdahulu (ditolak, kembali tepat waktu, kembali telat)
-        $historyPermits = Permit::where('student_id', $student->id)
+        $historyPermits = $student->permits()
             ->whereIn('status', ['rejected', 'returned_on_time', 'returned_late'])
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
 
         return view('student.dashboard', compact('student', 'activePermit', 'pendingPermit', 'historyPermits'));
@@ -46,8 +46,13 @@ class PermitController extends Controller
             return back()->with('error', 'Profil mahasiswa tidak valid.');
         }
 
+        // Cek apakah mahasiswa ditangguhkan
+        if ($student->isSuspended()) {
+            return back()->with('error', 'Hak izin Anda sedang ditangguhkan karena riwayat keterlambatan. Silakan hubungi pengelola asrama.');
+        }
+
         // Cek apakah ada izin aktif atau pending
-        $hasPendingOrActive = Permit::where('student_id', $student->id)
+        $hasPendingOrActive = $student->permits()
             ->whereIn('status', ['pending', 'approved'])
             ->exists();
 
@@ -134,6 +139,13 @@ class PermitController extends Controller
             $permit->return_photo = $fileName;
             $permit->return_location = $request->input('return_location');
             $permit->save();
+
+            // Auto-suspend mahasiswa jika terlambat
+            if ($isOverdue) {
+                $student->is_suspended = true;
+                $student->suspended_at = $now;
+                $student->save();
+            }
 
             return redirect()->route('student.dashboard')->with('success', 'Laporan kepulangan berhasil dikirim. Anda telah kembali ke asrama.');
         } catch (\Exception $e) {

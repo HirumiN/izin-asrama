@@ -190,8 +190,16 @@ class PermitController extends Controller
 
         $permit->save();
 
+        // Auto-suspend mahasiswa jika terlambat
+        if ($permit->status === 'returned_late') {
+            $student = $permit->student;
+            $student->is_suspended = true;
+            $student->suspended_at = Carbon::now();
+            $student->save();
+        }
+
         $message = $permit->status === 'returned_late' 
-            ? "Lapor kembali berhasil. Mahasiswa terlambat selama {$permit->lateness_duration} menit."
+            ? "Lapor kembali berhasil. Mahasiswa terlambat selama {$permit->lateness_duration} menit dan telah ditangguhkan."
             : "Lapor kembali berhasil. Mahasiswa kembali tepat waktu.";
 
         return redirect()->route('admin.dashboard')->with('success', $message);

@@ -54,20 +54,70 @@ class StudentController extends Controller
     {
         $query = Student::with('user');
 
+        // Filter pencarian: hanya nama atau NIM
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nim', 'like', '%' . $search . '%')
-                  ->orWhere('dorm_room', 'like', '%' . $search . '%')
                   ->orWhereHas('user', function($userQ) use ($search) {
-                      $userQ->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%');
+                      $userQ->where('name', 'like', '%' . $search . '%');
                   });
             });
         }
 
-        $students = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        // Filter status akun
+        if ($request->filled('status')) {
+            if ($request->status === 'aktif') {
+                $query->where('is_suspended', false);
+            } elseif ($request->status === 'ditangguhkan') {
+                $query->where('is_suspended', true);
+            }
+        }
+
+        // Filter terdaftar sejak
+        if ($request->filled('registered_since')) {
+            $query->whereDate('created_at', '>=', $request->registered_since);
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'terbaru');
+        switch ($sort) {
+            case 'az':
+                $query->join('users', 'students.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'asc')
+                      ->select('students.*');
+                break;
+            case 'za':
+                $query->join('users', 'students.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'desc')
+                      ->select('students.*');
+                break;
+            case 'terlama':
+                $query->orderBy('students.created_at', 'asc');
+                break;
+            default: // terbaru
+                $query->orderBy('students.created_at', 'desc');
+                break;
+        }
+
+        $students = $query->paginate(10)->withQueryString();
 
         return view('admin.students.index', compact('students'));
+    }
+
+    /**
+     * Mencabut status penangguhan mahasiswa.
+     */
+    public function liftSuspension(Student $student)
+    {
+        if (!$student->isSuspended()) {
+            return back()->with('error', 'Mahasiswa ini tidak sedang dalam status ditangguhkan.');
+        }
+
+        $student->is_suspended = false;
+        $student->suspended_at = null;
+        $student->save();
+
+        return back()->with('success', "Penangguhan untuk {$student->user->name} berhasil dicabut. Mahasiswa kini dapat mengajukan izin kembali.");
     }
 }
