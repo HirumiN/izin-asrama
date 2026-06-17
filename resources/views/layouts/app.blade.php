@@ -242,5 +242,53 @@
             });
         }, 5000);
     </script>
+    <script>
+        // Global AJAX Pagination Handler
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('nav[role="navigation"] a, .pagination a');
+            if (!link) return;
+
+            const url = link.getAttribute('href');
+            if (!url || url === '#' || url.startsWith('javascript:')) return;
+
+            const container = link.closest('[id^="container-"]');
+            if (!container) return;
+
+            e.preventDefault();
+
+            // Loading state (fade container slightly)
+            container.style.opacity = '0.5';
+            container.style.transition = 'opacity 0.15s ease';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContainer = doc.getElementById(container.id);
+                    
+                    if (newContainer) {
+                        container.innerHTML = newContainer.innerHTML;
+                        window.history.pushState({}, '', url);
+                        
+                        // Fire a custom event to notify that container content has changed
+                        const event = new CustomEvent('container-loaded', { 
+                            detail: { containerId: container.id } 
+                        });
+                        document.dispatchEvent(event);
+                    }
+                    container.style.opacity = '1';
+                })
+                .catch(err => {
+                    console.error('AJAX pagination failed:', err);
+                    container.style.opacity = '1';
+                    // Fallback to standard page navigation
+                    window.location.href = url;
+                });
+        });
+    </script>
 </body>
 </html>

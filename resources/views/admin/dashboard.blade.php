@@ -254,7 +254,7 @@
                                     <td class="px-6 py-4">
                                         @if($isOverdue)
                                             <span class="px-2.5 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded-full text-xs font-bold animate-pulse">
-                                                Terlambat {{ \Carbon\Carbon::now()->diffInMinutes($permit->end_time) }}m+
+                                                Terlambat
                                             </span>
                                         @else
                                             <span class="px-2.5 py-0.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-full text-xs font-bold">
@@ -321,7 +321,7 @@
                                     <td class="px-6 py-4">
                                         @if($isOverdue)
                                             <span class="px-2.5 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded-full text-xs font-bold animate-pulse">
-                                                Terlambat {{ \Carbon\Carbon::now()->diffInMinutes($permit->end_time) }}m+
+                                                Terlambat
                                             </span>
                                         @else
                                             <span class="px-2.5 py-0.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-full text-xs font-bold">
@@ -399,78 +399,80 @@
         </form>
 
         <!-- Tabel Riwayat -->
-        @if($historyPermits->isEmpty())
-            <div class="text-center py-6 text-slate-400 text-sm font-medium">
-                Tidak ada data riwayat yang cocok dengan filter.
-            </div>
-        @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-650">
-                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
-                        <tr>
-                            <th class="px-6 py-3">Mahasiswa</th>
-                            <th class="px-6 py-3">Jenis</th>
-                            <th class="px-6 py-3">Tujuan</th>
-                            <th class="px-6 py-3">Keluar</th>
-                            <th class="px-6 py-3">Batas Kembali</th>
-                            <th class="px-6 py-3">Aktual Kembali</th>
-                            <th class="px-6 py-3">Terlambat</th>
-                            <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3">Di-ACC Oleh</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200/80 font-medium">
-                        @foreach($historyPermits as $history)
-                            <tr class="hover:bg-slate-50/50 transition duration-150">
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-900">{{ $history->student->user->name }}</div>
-                                    <div class="text-xs text-slate-500 font-medium">NIM: {{ $history->student->nim }}</div>
-                                </td>
-                                <td class="px-6 py-4 capitalize text-slate-800">{{ $history->type }}</td>
-                                <td class="px-6 py-4 text-slate-800">{{ $history->destination }}</td>
-                                <td class="px-6 py-4">{{ $history->start_time->format('d/m/Y, H:i') }}</td>
-                                <td class="px-6 py-4 text-slate-800">
-                                    {{ $history->end_time ? $history->end_time->format('d/m/Y, H:i') : '-' }}
-                                </td>
-                                <td class="px-6 py-4 text-slate-800">
-                                    {{ $history->actual_return_time ? $history->actual_return_time->format('d/m/Y, H:i') : '-' }}
-                                </td>
-                                <td class="px-6 py-4">
-                                    @if($history->status === 'returned_late')
-                                        <span class="text-rose-600 font-bold">{{ $history->lateness_duration }} Menit</span>
-                                    @else
-                                        <span class="text-slate-400 font-medium">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    @if($history->status === 'returned_on_time')
-                                        <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded text-[11px] font-bold uppercase">
-                                            Tepat Waktu
-                                        </span>
-                                    @elseif($history->status === 'returned_late')
-                                        <span class="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded text-[11px] font-bold uppercase">
-                                            Terlambat
-                                        </span>
-                                    @elseif($history->status === 'rejected')
-                                        <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 rounded text-[11px] font-bold uppercase">
-                                            Ditolak
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-xs text-slate-500 font-medium">
-                                    {{ $history->actionBy ? $history->actionBy->name : '-' }}
-                                </td>
+        <div id="container-history">
+            @if($historyPermits->isEmpty())
+                <div class="text-center py-6 text-slate-400 text-sm font-medium">
+                    Tidak ada data riwayat yang cocok dengan filter.
+                </div>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-650">
+                        <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                            <tr>
+                                <th class="px-6 py-3">Mahasiswa</th>
+                                <th class="px-6 py-3">Jenis</th>
+                                <th class="px-6 py-3">Tujuan</th>
+                                <th class="px-6 py-3">Keluar</th>
+                                <th class="px-6 py-3">Batas Kembali</th>
+                                <th class="px-6 py-3">Aktual Kembali</th>
+                                <th class="px-6 py-3">Terlambat</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Di-ACC Oleh</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200/80 font-medium">
+                            @foreach($historyPermits as $history)
+                                <tr class="hover:bg-slate-50/50 transition duration-150">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900">{{ $history->student->user->name }}</div>
+                                        <div class="text-xs text-slate-500 font-medium">NIM: {{ $history->student->nim }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 capitalize text-slate-800">{{ $history->type }}</td>
+                                    <td class="px-6 py-4 text-slate-800">{{ $history->destination }}</td>
+                                    <td class="px-6 py-4">{{ $history->start_time->format('d/m/Y, H:i') }}</td>
+                                    <td class="px-6 py-4 text-slate-800">
+                                        {{ $history->end_time ? $history->end_time->format('d/m/Y, H:i') : '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-800">
+                                        {{ $history->actual_return_time ? $history->actual_return_time->format('d/m/Y, H:i') : '-' }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($history->status === 'returned_late')
+                                            <span class="text-rose-600 font-bold">{{ $history->lateness_duration }} Menit</span>
+                                        @else
+                                            <span class="text-slate-400 font-medium">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($history->status === 'returned_on_time')
+                                            <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded text-[11px] font-bold uppercase">
+                                                Tepat Waktu
+                                            </span>
+                                        @elseif($history->status === 'returned_late')
+                                            <span class="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded text-[11px] font-bold uppercase">
+                                                Terlambat
+                                            </span>
+                                        @elseif($history->status === 'rejected')
+                                            <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 rounded text-[11px] font-bold uppercase">
+                                                Ditolak
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-slate-500 font-medium">
+                                        {{ $history->actionBy ? $history->actionBy->name : '-' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-            <!-- Pagination Links -->
-            <div class="pt-4">
-                {{ $historyPermits->links() }}
-            </div>
-        @endif
+                <!-- Pagination Links -->
+                <div class="pt-4">
+                    {{ $historyPermits->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 
 </div>
@@ -544,6 +546,16 @@
         }
         if (urlParams.has('active_bermalam_page')) {
             switchActiveTab('bermalam');
+        }
+    });
+
+    // Re-run setup handlers when container content updates via AJAX
+    document.addEventListener('container-loaded', function(e) {
+        const containerId = e.detail.containerId;
+        if (containerId === 'container-pending-pesiar') {
+            setupBulkHandlers('pesiar');
+        } else if (containerId === 'container-pending-bermalam') {
+            setupBulkHandlers('bermalam');
         }
     });
 
