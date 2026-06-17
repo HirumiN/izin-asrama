@@ -18,7 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'actual_return_time',
     'lateness_duration',
     'action_by',
-    'action_at'
+    'action_at',
+    'return_photo',
+    'return_location'
 ])]
 class Permit extends Model
 {

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'approved', 'rejected', 'returned_on_time', 'returned_late'])->default('pending');
             $table->timestamp('actual_return_time')->nullable();
             $table->integer('lateness_duration')->nullable(); // Dalam menit
+            $table->string('return_photo')->nullable();
+            $table->string('return_location')->nullable();
             $table->foreignId('action_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('action_at')->nullable();
             $table->timestamps();

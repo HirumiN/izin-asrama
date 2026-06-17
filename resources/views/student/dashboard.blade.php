@@ -104,6 +104,17 @@
                             <strong>Izin Bermalam Aktif:</strong> Anda diizinkan untuk menginap di luar asrama hingga tanggal pengembalian di atas. Pastikan membawa berkas izin jika sewaktu-waktu diperlukan dan lapor kembali saat tiba di asrama.
                         </div>
                     @endif
+
+                    <!-- Tombol Lapor Kembali Mandiri -->
+                    <div class="pt-6 border-t border-slate-100 flex justify-center">
+                        <button type="button" onclick="openReturnModal()" class="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center gap-2.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                            </svg>
+                            Lapor Kembali ke Asrama (Ambil Foto Selfie)
+                        </button>
+                    </div>
                 </div>
 
             @elseif($pendingPermit)
@@ -372,4 +383,290 @@
     </div>
 
 </div>
+
+<!-- MODAL LAPOR KEMBALI DENGAN FOTO & GPS -->
+<div id="return-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; display: none; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
+    <div id="return-modal-card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; width: 92%; max-width: 512px; background: #fff; border-radius: 16px; border: 1px solid rgba(226,232,240,0.8); box-shadow: 0 25px 50px rgba(0,0,0,0.25); overflow: hidden;">
+        <!-- Header Modal -->
+        <div class="px-6 py-4 border-b border-slate-150 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-900">Lapor Kembali ke Asrama</h3>
+            <button type="button" onclick="closeReturnModal()" class="text-slate-400 hover:text-slate-650 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Content Modal -->
+        <div class="p-6 space-y-6">
+            <!-- Status GPS -->
+            <div id="gps-status" class="p-3 rounded-xl border flex items-center gap-2.5 text-sm font-semibold transition duration-150 bg-amber-50 border-amber-100 text-amber-800">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                <span id="gps-text">Mencari Lokasi GPS...</span>
+            </div>
+
+            <!-- Video / Kamera Preview Container -->
+            <div class="relative w-full aspect-video rounded-2xl bg-black overflow-hidden shadow-inner border border-slate-200">
+                <!-- Video Element -->
+                <video id="webcam-preview" autoplay playsinline class="w-full h-full object-cover"></video>
+                <!-- Canvas Element (Tersembunyi) -->
+                <canvas id="photo-canvas" class="hidden"></canvas>
+                <!-- Captured Image Preview -->
+                <img id="captured-preview" class="hidden w-full h-full object-cover" alt="Captured Preview">
+
+                <!-- Overlay Loading/Status -->
+                <div id="camera-loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-white gap-2">
+                    <svg class="animate-spin h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-xs font-semibold text-slate-350">Memulai Kamera...</span>
+                </div>
+            </div>
+
+            <!-- Form data & Submit -->
+            <form id="return-report-form" action="{{ route('student.permits.return', $activePermit ? $activePermit->id : 0) }}" method="POST">
+                @csrf
+                <input type="hidden" name="return_photo" id="input-return-photo">
+                <input type="hidden" name="return_location" id="input-return-location">
+
+                <!-- Buttons Group -->
+                <div class="flex items-center gap-3">
+                    <button type="button" id="btn-capture" onclick="capturePhoto()" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center gap-2" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                        </svg>
+                        Ambil Foto
+                    </button>
+                    <button type="button" id="btn-retake" onclick="retakePhoto()" class="hidden flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-350 rounded-xl text-sm font-bold transition duration-150 transform active:scale-[0.98] flex items-center justify-center gap-2">
+                        Foto Ulang
+                    </button>
+                    <button type="submit" id="btn-submit" class="hidden flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center gap-2">
+                        Kirim Laporan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let webcamStream = null;
+
+    function openReturnModal() {
+        const modal = document.getElementById('return-modal');
+        const card = document.getElementById('return-modal-card');
+        
+        // Pindahkan modal ke body agar di atas semua elemen (sidebar, navbar)
+        document.body.appendChild(modal);
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'block';
+
+        setTimeout(() => {
+            card.style.transform = 'translate(-50%, -50%) scale(1)';
+            card.style.opacity = '1';
+        }, 10);
+
+        // Mulai Kamera
+        const video = document.getElementById('webcam-preview');
+        const cameraLoading = document.getElementById('camera-loading');
+        const btnCapture = document.getElementById('btn-capture');
+
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+            audio: false 
+        })
+        .then(stream => {
+            webcamStream = stream;
+            video.srcObject = stream;
+            cameraLoading.classList.add('hidden');
+            btnCapture.removeAttribute('disabled');
+        })
+        .catch(err => {
+            console.error('Kamera gagal dimuat:', err);
+            cameraLoading.innerHTML = `
+                <div class="text-center p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-rose-500 mx-auto mb-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                    </svg>
+                    <span class="text-rose-400 font-bold text-xs">Akses Kamera Ditolak / Tidak Ada Kamera</span>
+                </div>
+            `;
+        });
+
+        // Mulai Geolocation
+        const gpsStatus = document.getElementById('gps-status');
+        const gpsText = document.getElementById('gps-text');
+        const inputLocation = document.getElementById('input-return-location');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    inputLocation.value = `Lat: ${lat}, Lng: ${lng}`;
+
+                    gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
+                    gpsStatus.classList.add('bg-emerald-50', 'border-emerald-100', 'text-emerald-800');
+                    gpsStatus.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-emerald-600 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                        <span class="text-xs">GPS Terdeteksi: Lat: ${lat}, Lng: ${lng}</span>
+                    `;
+                },
+                (error) => {
+                    console.error('GPS gagal:', error);
+                    inputLocation.value = 'GPS Tidak Diizinkan / Mati';
+                    gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
+                    gpsStatus.classList.add('bg-rose-50', 'border-rose-100', 'text-rose-800');
+                    gpsStatus.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-rose-600 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                        <span class="text-xs">GPS Mati / Izin Ditolak</span>
+                    `;
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        } else {
+            inputLocation.value = 'GPS Tidak Didukung Browser';
+            gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
+            gpsStatus.classList.add('bg-rose-50', 'border-rose-100', 'text-rose-850');
+            gpsStatus.innerHTML = `<span class="text-xs">Geolocation Tidak Didukung</span>`;
+        }
+    }
+
+    function closeReturnModal() {
+        const modal = document.getElementById('return-modal');
+        const card = document.getElementById('return-modal-card');
+        
+        card.style.transform = 'translate(-50%, -50%) scale(0.95)';
+        card.style.opacity = '0';
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            retakePhoto();
+        }, 300);
+
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(track => track.stop());
+            webcamStream = null;
+        }
+    }
+
+    function capturePhoto() {
+        const video = document.getElementById('webcam-preview');
+        const canvas = document.getElementById('photo-canvas');
+        const preview = document.getElementById('captured-preview');
+        const inputPhoto = document.getElementById('input-return-photo');
+        const inputLocation = document.getElementById('input-return-location');
+        
+        const btnCapture = document.getElementById('btn-capture');
+        const btnRetake = document.getElementById('btn-retake');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        // Set Resolusi Canvas sesuai Resolusi Video
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+
+        const ctx = canvas.getContext('2d');
+        
+        // Mirroring selfie photo jika perlu (kamera depan biasanya mirror)
+        // Di sini kita gambar langsung apa adanya agar tidak membingungkan
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Watermark overlay
+        const barHeight = Math.round(canvas.height * 0.16);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, canvas.height - barHeight, canvas.width, barHeight);
+
+        // Teks Watermark
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'middle';
+
+        const padding = Math.round(canvas.width * 0.03);
+        const fontSizeLarge = Math.max(12, Math.round(canvas.height * 0.04));
+        const fontSizeSmall = Math.max(10, Math.round(canvas.height * 0.03));
+
+        // Line 1: Nama dan NIM
+        ctx.font = `bold ${fontSizeLarge}px Arial, sans-serif`;
+        const name = "{{ $student->user->name }}";
+        const nim = "{{ $student->nim }}";
+        ctx.fillText(`${name} (${nim})`, padding, canvas.height - barHeight + padding * 0.7);
+
+        // Line 2: Waktu & GPS
+        ctx.font = `${fontSizeSmall}px Arial, sans-serif`;
+        
+        // Format waktu local
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' WIB';
+        const locationStr = inputLocation.value || 'GPS Tidak Terdeteksi';
+
+        ctx.fillText(`${dateStr}, ${timeStr} | ${locationStr}`, padding, canvas.height - padding * 0.7);
+
+        // Konversi ke base64
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        inputPhoto.value = dataUrl;
+        
+        // Update preview & switch tampilan
+        preview.src = dataUrl;
+        preview.classList.remove('hidden');
+        video.classList.add('hidden');
+        
+        btnCapture.classList.add('hidden');
+        btnRetake.classList.remove('hidden');
+        btnSubmit.classList.remove('hidden');
+
+        // Hentikan webcam
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(track => track.stop());
+            webcamStream = null;
+        }
+    }
+
+    function retakePhoto() {
+        const video = document.getElementById('webcam-preview');
+        const preview = document.getElementById('captured-preview');
+        const inputPhoto = document.getElementById('input-return-photo');
+        
+        const btnCapture = document.getElementById('btn-capture');
+        const btnRetake = document.getElementById('btn-retake');
+        const btnSubmit = document.getElementById('btn-submit');
+        const cameraLoading = document.getElementById('camera-loading');
+
+        inputPhoto.value = '';
+        preview.src = '';
+        preview.classList.add('hidden');
+        video.classList.remove('hidden');
+        cameraLoading.classList.remove('hidden');
+        
+        btnCapture.classList.remove('hidden');
+        btnCapture.setAttribute('disabled', 'true');
+        btnRetake.classList.add('hidden');
+        btnSubmit.classList.add('hidden');
+
+        // Jalankan kembali webcam
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+            audio: false 
+        })
+        .then(stream => {
+            webcamStream = stream;
+            video.srcObject = stream;
+            cameraLoading.classList.add('hidden');
+            btnCapture.removeAttribute('disabled');
+        })
+        .catch(err => {
+            console.error('Kamera gagal dimuat saat retake:', err);
+            cameraLoading.innerHTML = `<span class="text-rose-400 font-bold text-xs p-4">Kamera Gagal Dimuat</span>`;
+        });
+    }
+</script>
 @endsection

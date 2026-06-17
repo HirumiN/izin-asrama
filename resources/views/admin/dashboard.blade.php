@@ -415,9 +415,8 @@
                                 <th class="px-6 py-3">Keluar</th>
                                 <th class="px-6 py-3">Batas Kembali</th>
                                 <th class="px-6 py-3">Aktual Kembali</th>
-                                <th class="px-6 py-3">Terlambat</th>
+                                <th class="px-6 py-3">Bukti</th>
                                 <th class="px-6 py-3">Status</th>
-                                <th class="px-6 py-3">Di-ACC Oleh</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200/80 font-medium">
@@ -437,10 +436,12 @@
                                         {{ $history->actual_return_time ? $history->actual_return_time->format('d/m/Y, H:i') : '-' }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        @if($history->status === 'returned_late')
-                                            <span class="text-rose-600 font-bold">{{ $history->lateness_duration }} Menit</span>
+                                        @if($history->return_photo)
+                                            <button type="button" onclick="openEvidenceModal('{{ asset('storage/' . $history->return_photo) }}', '{{ $history->return_location }}', '{{ $history->student->user->name }}', '{{ $history->student->nim }}')" class="px-2.5 py-1 bg-blue-50 border border-blue-150 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition duration-150 cursor-pointer">
+                                                Lihat Bukti
+                                            </button>
                                         @else
-                                            <span class="text-slate-400 font-medium">-</span>
+                                            <span class="text-slate-400 text-xs">-</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
@@ -457,9 +458,6 @@
                                                 Ditolak
                                             </span>
                                         @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-xs text-slate-500 font-medium">
-                                        {{ $history->actionBy ? $history->actionBy->name : '-' }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -616,5 +614,90 @@
         document.body.appendChild(form);
         form.submit();
     }
+
+    function openEvidenceModal(photoUrl, location, name, nim) {
+        const modal = document.getElementById('evidence-modal');
+        const card = document.getElementById('evidence-modal-card');
+        const title = document.getElementById('evidence-modal-title');
+        const img = document.getElementById('evidence-img');
+        const locText = document.getElementById('evidence-location');
+
+        title.innerText = `Bukti Pulang: ${name} (${nim})`;
+        img.src = photoUrl;
+        locText.innerText = location || 'GPS Tidak Terdeteksi';
+
+        // Pindahkan modal ke body agar di atas semua elemen (sidebar, navbar, dll)
+        document.body.appendChild(modal);
+
+        // Tampilkan modal
+        modal.classList.remove('hidden');
+        modal.style.display = 'block';
+
+        // Animasi masuk
+        setTimeout(() => {
+            card.style.transform = 'translate(-50%, -50%) scale(1)';
+            card.style.opacity = '1';
+        }, 10);
+    }
+
+    function closeEvidenceModal() {
+        const modal = document.getElementById('evidence-modal');
+        const card = document.getElementById('evidence-modal-card');
+
+        // Animasi keluar
+        card.style.transform = 'translate(-50%, -50%) scale(0.95)';
+        card.style.opacity = '0';
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    // Close modal on backdrop click
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('evidence-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEvidenceModal();
+                }
+            });
+        }
+    });
+
+    // Close modal on ESC key press
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('evidence-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                closeEvidenceModal();
+            }
+        }
+    });
 </script>
+
+<!-- MODAL DETAIL BUKTI FOTO & LOKASI -->
+<div id="evidence-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; display: none; background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <!-- Close Button -->
+    <button type="button" onclick="closeEvidenceModal()" title="Tutup" style="position: fixed; top: 16px; right: 16px; z-index: 100000; padding: 8px; background: rgba(255,255,255,0.15); border-radius: 9999px; border: none; cursor: pointer; color: white; transition: background 0.15s;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 20px; height: 20px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+    </button>
+
+    <!-- Card Container -->
+    <div id="evidence-modal-card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; width: 90%; max-width: 560px; text-align: center;">
+        <!-- Foto Preview -->
+        <div style="width: 100%; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+            <img id="evidence-img" src="" alt="Bukti Foto" style="width: 100%; height: auto; max-height: 70vh; object-fit: contain; display: block; margin: 0 auto;">
+        </div>
+
+        <!-- Info Detail -->
+        <div style="margin-top: 16px;">
+            <h3 id="evidence-modal-title" style="font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Bukti Pulang</h3>
+            <p id="evidence-location" style="font-size: 12px; color: #cbd5e1; margin: 0;">-</p>
+        </div>
+    </div>
+</div>
 @endsection
