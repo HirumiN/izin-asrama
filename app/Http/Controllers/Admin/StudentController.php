@@ -58,20 +58,17 @@ class StudentController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('nim', 'like', '%' . $search . '%')
+                $q->where(['nim' => $search])
+                  ->orWhere('nim', 'like', "%{$search}%")
                   ->orWhereHas('user', function($userQ) use ($search) {
-                      $userQ->where('name', 'like', '%' . $search . '%');
+                      $userQ->where('name', 'like', "%{$search}%");
                   });
             });
         }
 
         // Filter status akun
         if ($request->filled('status')) {
-            if ($request->status === 'aktif') {
-                $query->where('is_suspended', false);
-            } elseif ($request->status === 'ditangguhkan') {
-                $query->where('is_suspended', true);
-            }
+            $query->where(['is_suspended' => $request->status === 'ditangguhkan']);
         }
 
         // Filter terdaftar sejak
@@ -81,23 +78,23 @@ class StudentController extends Controller
 
         // Sorting
         $sort = $request->input('sort', 'terbaru');
-        switch ($sort) {
-            case 'az':
-                $query->join('users', 'students.user_id', '=', 'users.id')
-                      ->orderBy('users.name', 'asc')
-                      ->select('students.*');
-                break;
-            case 'za':
-                $query->join('users', 'students.user_id', '=', 'users.id')
-                      ->orderBy('users.name', 'desc')
-                      ->select('students.*');
-                break;
-            case 'terlama':
-                $query->orderBy('students.created_at', 'asc');
-                break;
-            default: // terbaru
-                $query->orderBy('students.created_at', 'desc');
-                break;
+        $sortMap = [
+            'az'      => ['join' => true, 'column' => 'name', 'dir' => 'asc'],
+            'za'      => ['join' => true, 'column' => 'name', 'dir' => 'desc'],
+            'terlama' => ['join' => false, 'column' => 'created_at', 'dir' => 'asc'],
+            'terbaru' => ['join' => false, 'column' => 'created_at', 'dir' => 'desc'],
+        ];
+
+        $sortConfig = $sortMap[$sort] ?? $sortMap['terbaru'];
+
+        if ($sortConfig['join']) {
+            $query->join('users', function ($join) {
+                      $join->on('students.user_id', '=', 'users.id');
+                  })
+                  ->orderByRaw("users.{$sortConfig['column']} {$sortConfig['dir']}")
+                  ->select('students.*');
+        } else {
+            $query->orderByRaw("students.{$sortConfig['column']} {$sortConfig['dir']}");
         }
 
         $students = $query->paginate(10)->withQueryString();

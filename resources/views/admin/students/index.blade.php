@@ -23,7 +23,7 @@
     </div>
 
     <!-- Search & Filters Card -->
-    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm">
         
         <!-- Pencarian Realtime -->
         <div class="p-4 border-b border-slate-100">
@@ -47,36 +47,22 @@
             <!-- Urut -->
             <div class="w-full sm:flex-1">
                 <label for="filter-sort" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5 tracking-wider">Urut Berdasarkan</label>
-                <div class="relative">
-                    <select id="filter-sort" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 pr-10 cursor-pointer" style="-webkit-appearance: none; -moz-appearance: none; appearance: none;">
-                        <option value="terbaru" {{ request('sort', 'terbaru') === 'terbaru' ? 'selected' : '' }}>Terbaru Terdaftar</option>
-                        <option value="terlama" {{ request('sort') === 'terlama' ? 'selected' : '' }}>Terlama Terdaftar</option>
-                        <option value="az" {{ request('sort') === 'az' ? 'selected' : '' }}>Nama A → Z</option>
-                        <option value="za" {{ request('sort') === 'za' ? 'selected' : '' }}>Nama Z → A</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </div>
-                </div>
+                <select id="filter-sort" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 cursor-pointer">
+                    <option value="terbaru" {{ request('sort', 'terbaru') === 'terbaru' ? 'selected' : '' }}>Terbaru Terdaftar</option>
+                    <option value="terlama" {{ request('sort') === 'terlama' ? 'selected' : '' }}>Terlama Terdaftar</option>
+                    <option value="az" {{ request('sort') === 'az' ? 'selected' : '' }}>Nama A → Z</option>
+                    <option value="za" {{ request('sort') === 'za' ? 'selected' : '' }}>Nama Z → A</option>
+                </select>
             </div>
 
             <!-- Status Akun -->
             <div class="w-full sm:flex-1">
                 <label for="filter-status" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5 tracking-wider">Status Akun</label>
-                <div class="relative">
-                    <select id="filter-status" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 pr-10 cursor-pointer" style="-webkit-appearance: none; -moz-appearance: none; appearance: none;">
-                        <option value="" {{ !request('status') ? 'selected' : '' }}>Semua Status</option>
-                        <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="ditangguhkan" {{ request('status') === 'ditangguhkan' ? 'selected' : '' }}>Ditangguhkan</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </div>
-                </div>
+                <select id="filter-status" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 cursor-pointer">
+                    <option value="" {{ !request('status') ? 'selected' : '' }}>Semua Status</option>
+                    <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="ditangguhkan" {{ request('status') === 'ditangguhkan' ? 'selected' : '' }}>Ditangguhkan</option>
+                </select>
             </div>
 
             <!-- Terdaftar Sejak -->
@@ -158,7 +144,7 @@
                                     @if($student->isSuspended())
                                         <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" onsubmit="return confirm('Yakin ingin mencabut penangguhan untuk {{ $student->user->name }}?')">
                                             @csrf
-                                            <button type="submit" class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition duration-150 cursor-pointer">
+                                            <button type="submit" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-emerald-100 rounded-lg text-xs font-bold hover:bg-emerald-700 transition duration-150 cursor-pointer shadow-sm">
                                                 Cabut Penangguhan
                                             </button>
                                         </form>
