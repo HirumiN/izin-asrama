@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - E-Izin Asrama</title>
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 1.25rem;
+            border: 1px solid rgba(15,23,42,0.08);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            padding: 48px 40px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .icon-wrapper {
+            width: 72px; height: 72px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+        }
+        .icon-wrapper svg { width: 36px; height: 36px; color: #2563eb; }
+        h1 { font-size: 1.375rem; font-weight: 700; margin-bottom: 8px; }
+        p { font-size: 0.875rem; color: #64748b; line-height: 1.6; margin-bottom: 24px; }
+        button {
+            background: #2563eb; color: #fff; border: none;
+            padding: 12px 28px; border-radius: 12px;
+            font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s;
+        }
+        button:hover { background: #1d4ed8; }
+        button:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" />
+            </svg>
+        </div>
+        <h1>Tidak Ada Koneksi Internet</h1>
+        <p>Anda sedang offline. Pastikan perangkat Anda terhubung ke jaringan WiFi atau data seluler untuk mengakses E-Izin Asrama.</p>
+        <button onclick="window.location.reload()">Coba Lagi</button>
+    </div>
+</body>
+</html>
