@@ -447,7 +447,13 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($history->return_photo)
-                                            <button type="button" onclick="openEvidenceModal('{{ asset('storage/' . $history->return_photo) }}', '{{ $history->return_location }}', '{{ $history->student->user->name }}', '{{ $history->student->nim }}')" class="px-2.5 py-1 bg-blue-50 border border-blue-150 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition duration-150 cursor-pointer">
+                                            <button type="button"
+                                                data-photo-url="{{ asset('storage/' . $history->return_photo) }}"
+                                                data-location="{{ $history->return_location }}"
+                                                data-name="{{ $history->student->user->name }}"
+                                                data-nim="{{ $history->student->nim }}"
+                                                onclick="openEvidenceModal(this.dataset.photoUrl, this.dataset.location, this.dataset.name, this.dataset.nim)"
+                                                class="px-2.5 py-1 bg-blue-50 border border-blue-150 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition duration-150 cursor-pointer">
                                                 Lihat Bukti
                                             </button>
                                         @else

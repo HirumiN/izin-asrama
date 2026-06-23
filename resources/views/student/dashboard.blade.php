@@ -646,8 +646,8 @@
 
         // Line 1: Nama dan NIM
         ctx.font = `bold ${fontSizeLarge}px Arial, sans-serif`;
-        const name = "{{ $student->user->name }}";
-        const nim = "{{ $student->nim }}";
+        const name = @js($student->user->name);
+        const nim = @js($student->nim);
         ctx.fillText(`${name} (${nim})`, padding, canvas.height - barHeight + padding * 0.7);
 
         // Line 2: Waktu & GPS
