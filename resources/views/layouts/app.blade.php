@@ -303,15 +303,42 @@
 
     <script>
         @if(Auth::check() && Auth::user()->role === 'mahasiswa')
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check status of browser notification
+        function initNotifications() {
+            console.log('Notification: Initializing...');
             updateBellUI();
+
+            if (!('Notification' in window)) {
+                return;
+            }
 
             // Auto-start polling if permission is already granted
             if (Notification.permission === 'granted') {
+                console.log('Notification: Permission already granted on load.');
                 startPollingStatus();
+            } else if (Notification.permission === 'default') {
+                console.log('Notification: Requesting permission automatically on load...');
+                // Coba minta izin secara otomatis saat pertama kali masuk dashboard
+                Notification.requestPermission().then(permission => {
+                    updateBellUI();
+                    if (permission === 'granted') {
+                        console.log('Notification: Permission granted automatically on load.');
+                        startPollingStatus();
+                        new Notification("Notifikasi Aktif!", {
+                            body: "Anda akan menerima pemberitahuan ketika izin disetujui atau ditolak.",
+                            icon: "https://cdn-icons-png.flaticon.com/512/1827/1827349.png"
+                        });
+                    }
+                });
+            } else {
+                console.log('Notification: Permission is currently:', Notification.permission);
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initNotifications);
+        } else {
+            initNotifications();
+        }
 
         function updateBellUI() {
             const bellBtn = document.getElementById('notif-bell-btn');
@@ -321,7 +348,7 @@
             if (!bellBtn || !bellIcon) return;
 
             if (!('Notification' in window)) {
-                // Not supported
+                console.log('Notification: Web notifications not supported in this browser.');
                 bellBtn.style.display = 'none';
                 return;
             }
@@ -361,6 +388,7 @@
             Notification.requestPermission().then(permission => {
                 updateBellUI();
                 if (permission === 'granted') {
+                    console.log('Notification: Permission granted by user click.');
                     startPollingStatus();
                     new Notification("Notifikasi Aktif!", {
                         body: "Anda akan menerima pemberitahuan ketika izin disetujui atau ditolak.",
@@ -372,35 +400,41 @@
 
         let pollInterval = null;
         function startPollingStatus() {
+            console.log('Notification: Starting status polling...');
             if (pollInterval) clearInterval(pollInterval);
 
             // Poll immediately on start
             checkLatestPermitStatus();
 
-            // Set interval to poll every 10 seconds
-            pollInterval = setInterval(checkLatestPermitStatus, 10000);
+            // Set interval to poll every 5 seconds (more responsive)
+            pollInterval = setInterval(checkLatestPermitStatus, 5000);
         }
 
         function checkLatestPermitStatus() {
+            console.log('Notification: Fetching latest permit status...');
             fetch("{{ route('student.permits.latest-status') }}")
                 .then(response => {
-                    if (!response.ok) throw new Error();
+                    if (!response.ok) throw new Error('Failed to fetch status');
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Notification: Fetched data:', data);
                     if (!data.latest) {
+                        console.log('Notification: No permit records found.');
                         localStorage.removeItem('last_permit_state');
                         return;
                     }
 
                     const current = data.latest;
                     const cachedStr = localStorage.getItem('last_permit_state');
+                    console.log('Notification: Current permit:', current, 'Cached permit:', cachedStr);
                     
                     if (cachedStr) {
                         const cached = JSON.parse(cachedStr);
                         // Jika ID sama tetapi status berubah
                         if (cached.id === current.id && cached.status !== current.status) {
-                            // Tampilkan notifikasi
+                            console.log('Notification: Status changed from', cached.status, 'to', current.status);
+                            
                             let statusText = current.status === 'approved' ? 'DISETUJUI' : 
                                              (current.status === 'rejected' ? 'DITOLAK' : current.status);
                             
@@ -410,14 +444,20 @@
                             }
 
                             if (Notification.permission === 'granted') {
-                                new Notification("Pembaruan Izin Asrama", {
-                                    body: bodyText,
-                                    icon: "https://cdn-icons-png.flaticon.com/512/1827/1827349.png",
-                                    tag: 'permit-update-' + current.id
-                                });
+                                try {
+                                    new Notification("Pembaruan Izin Asrama", {
+                                        body: bodyText,
+                                        icon: "https://cdn-icons-png.flaticon.com/512/1827/1827349.png",
+                                        tag: 'permit-update-' + current.id
+                                    });
+                                    console.log('Notification: Notification shown successfully.');
+                                } catch (e) {
+                                    console.error('Notification: Error showing notification:', e);
+                                }
                             }
 
                             // Reload halaman agar tampilan dashboard terupdate langsung
+                            console.log('Notification: Reloading page in 1.5 seconds...');
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
@@ -430,7 +470,7 @@
                         status: current.status
                     }));
                 })
-                .catch(err => console.error('Gagal mengecek status izin:', err));
+                .catch(err => console.error('Notification: Gagal mengecek status izin:', err));
         }
         @endif
     </script>
