@@ -412,7 +412,7 @@
 
         function checkLatestPermitStatus() {
             console.log('Notification: Fetching latest permit status...');
-            fetch("{{ route('student.permits.latest-status') }}")
+            fetch("{{ route('student.permits.latest-status', [], false) }}")
                 .then(response => {
                     if (!response.ok) throw new Error('Failed to fetch status');
                     return response.json();
