@@ -12,7 +12,7 @@ class PermitController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Pengajuan Masuk (Pending) - Paginated
+        // Pengajuan Masuk (Pending) - dipisah per jenis izin
         $pendingPesiar = Permit::with('student.user')
             ->where('status', 'pending')
             ->where('type', 'pesiar')
@@ -27,10 +27,9 @@ class PermitController extends Controller
             ->paginate(10, ['*'], 'pending_bermalam_page')
             ->withQueryString();
 
-        // Total Pending Count
         $pendingPermitsCount = Permit::where('status', 'pending')->count();
 
-        // 2. Mahasiswa Sedang Keluar (Approved / Active) - Paginated
+        // Mahasiswa Sedang Keluar (Approved / Aktif) - dipisah per jenis izin
         $activePesiar = Permit::with('student.user')
             ->where('status', 'approved')
             ->where('type', 'pesiar')
@@ -45,79 +44,62 @@ class PermitController extends Controller
             ->paginate(10, ['*'], 'active_bermalam_page')
             ->withQueryString();
 
-        // Total Active/Approved Count
         $activePermitsCount = Permit::where('status', 'approved')->count();
 
-        // 3. Tabel Riwayat Semua Izin (Ditolak, Tepat Waktu, Telat) dengan Filter
+        // Riwayat Semua Izin dengan Filter Pencarian
         $query = Permit::with(['student.user', 'actionBy'])
             ->whereIn('status', ['rejected', 'returned_on_time', 'returned_late']);
 
-        // Filter Pencarian Nama
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('student.user', function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('nim', 'like', '%' . $search . '%');
-            });
+            $query->whereHas('student.user', fn($q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('nim', 'like', "%{$search}%")
+            );
         }
 
-        // Filter Tanggal
         if ($request->filled('date')) {
             $query->whereDate('start_time', $request->date);
         }
 
-        // Filter Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $historyPermits = $query->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'history_page')->withQueryString();
+        $historyPermits = $query
+            ->orderBy('updated_at', 'desc')
+            ->paginate(10, ['*'], 'history_page')
+            ->withQueryString();
 
         return view('admin.dashboard', compact(
-            'pendingPesiar', 
-            'pendingBermalam', 
+            'pendingPesiar',
+            'pendingBermalam',
             'pendingPermitsCount',
-            'activePesiar', 
-            'activeBermalam', 
+            'activePesiar',
+            'activeBermalam',
             'activePermitsCount',
             'historyPermits'
         ));
     }
 
-    public function approve(Permit $permit)
+    public function approve(Request $request, Permit $permit)
     {
         if ($permit->status !== 'pending') {
             return back()->with('error', 'Status pengajuan tidak valid untuk disetujui.');
         }
 
-        $permit->status = 'approved';
-        $permit->action_by = Auth::id();
-        $permit->action_at = Carbon::now();
-
-        // Mengatur batas waktu (end_time) berdasarkan jenis izin
-        if ($permit->type === 'pesiar') {
-            // Untuk Pesiar: Batas waktu kembali adalah jam malam hari yang sama (misalnya pukul 21:00)
-            $permit->end_time = Carbon::parse($permit->start_time)->setTime(21, 0, 0);
-        } else {
-            // Untuk Bermalam: Mengikuti tanggal kembali yang telah diisi mahasiswa, batas waktu jam 17:00 sore
-            $permit->end_time = Carbon::parse($permit->end_time)->setTime(17, 0, 0);
-        }
-
-        $permit->save();
+        $this->applyPermitDecision($permit, 'approved', $request->input('admin_note'));
 
         return redirect()->route('admin.dashboard')->with('success', 'Pengajuan izin berhasil disetujui.');
     }
 
-    public function reject(Permit $permit)
+    public function reject(Request $request, Permit $permit)
     {
         if ($permit->status !== 'pending') {
             return back()->with('error', 'Status pengajuan tidak valid untuk ditolak.');
         }
 
-        $permit->status = 'rejected';
-        $permit->action_by = Auth::id();
-        $permit->action_at = Carbon::now();
-        $permit->save();
+        $this->applyPermitDecision($permit, 'rejected', $request->input('admin_note'));
 
         return redirect()->route('admin.dashboard')->with('success', 'Pengajuan izin telah ditolak.');
     }
@@ -125,41 +107,24 @@ class PermitController extends Controller
     public function bulkAction(Request $request)
     {
         $request->validate([
-            'permit_ids' => 'required|array',
+            'permit_ids'   => 'required|array',
             'permit_ids.*' => 'exists:permits,id',
-            'action' => 'required|in:approve,reject',
+            'action'       => 'required|in:approve,reject',
         ]);
 
-        $permitIds = $request->permit_ids;
         $action = $request->action;
+        $newStatus = $action === 'approve' ? 'approved' : 'rejected';
         $count = 0;
 
-        foreach ($permitIds as $id) {
+        foreach ($request->permit_ids as $id) {
             $permit = Permit::find($id);
             if ($permit && $permit->status === 'pending') {
-                if ($action === 'approve') {
-                    $permit->status = 'approved';
-                    $permit->action_by = Auth::id();
-                    $permit->action_at = Carbon::now();
-
-                    if ($permit->type === 'pesiar') {
-                        $permit->end_time = Carbon::parse($permit->start_time)->setTime(21, 0, 0);
-                    } else {
-                        $permit->end_time = Carbon::parse($permit->end_time)->setTime(17, 0, 0);
-                    }
-                    $permit->save();
-                    $count++;
-                } elseif ($action === 'reject') {
-                    $permit->status = 'rejected';
-                    $permit->action_by = Auth::id();
-                    $permit->action_at = Carbon::now();
-                    $permit->save();
-                    $count++;
-                }
+                $this->applyPermitDecision($permit, $newStatus);
+                $count++;
             }
         }
 
-        $message = $action === 'approve' 
+        $message = $action === 'approve'
             ? "Berhasil menyetujui {$count} pengajuan izin."
             : "Berhasil menolak {$count} pengajuan izin.";
 
@@ -174,34 +139,50 @@ class PermitController extends Controller
 
         $now = Carbon::now();
         $endTime = Carbon::parse($permit->end_time);
+        $isLate = $now->greaterThan($endTime);
 
         $permit->actual_return_time = $now;
-
-        if ($now->greaterThan($endTime)) {
-            // Terlambat
-            $permit->status = 'returned_late';
-            // Hitung durasi keterlambatan dalam menit
-            $permit->lateness_duration = $endTime->diffInMinutes($now);
-        } else {
-            // Tepat waktu
-            $permit->status = 'returned_on_time';
-            $permit->lateness_duration = 0;
-        }
-
+        $permit->status = $isLate ? 'returned_late' : 'returned_on_time';
+        $permit->lateness_duration = $isLate ? (int) $endTime->diffInMinutes($now) : 0;
         $permit->save();
 
-        // Auto-suspend mahasiswa jika terlambat
-        if ($permit->status === 'returned_late') {
+        if ($isLate) {
             $student = $permit->student;
             $student->is_suspended = true;
-            $student->suspended_at = Carbon::now();
+            $student->suspended_at = $now;
             $student->save();
         }
 
-        $message = $permit->status === 'returned_late' 
+        $message = $isLate
             ? "Lapor kembali berhasil. Mahasiswa terlambat selama {$permit->lateness_duration} menit dan telah ditangguhkan."
             : "Lapor kembali berhasil. Mahasiswa kembali tepat waktu.";
 
         return redirect()->route('admin.dashboard')->with('success', $message);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Terapkan keputusan (setuju/tolak) pada permit dan simpan ke database.
+     * Untuk status 'approved', batas waktu (end_time) dihitung otomatis.
+     */
+    private function applyPermitDecision(Permit $permit, string $status, ?string $adminNote = null): void
+    {
+        $permit->status     = $status;
+        $permit->action_by  = Auth::id();
+        $permit->action_at  = Carbon::now();
+        $permit->admin_note = $adminNote;
+
+        if ($status === 'approved') {
+            // Pesiar: kembali hari yang sama jam 21:00
+            // Bermalam: kembali sesuai tanggal yang diajukan mahasiswa jam 17:00
+            $permit->end_time = $permit->type === 'pesiar'
+                ? Carbon::parse($permit->start_time)->setTime(21, 0, 0)
+                : Carbon::parse($permit->end_time)->setTime(17, 0, 0);
+        }
+
+        $permit->save();
     }
 }

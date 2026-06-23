@@ -147,10 +147,18 @@
                         @yield('page_title', 'Dashboard')
                     </h1>
                 </div>
-                
+
                 <!-- Right Side: User Profile / Info -->
                 <div class="flex items-center gap-3">
                     @if(Auth::user()->role === 'mahasiswa' && Auth::user()->student)
+                        <!-- Notification Enable Button -->
+                        <button type="button" id="notif-bell-btn" class="p-2 text-slate-400 hover:text-blue-600 focus:outline-none transition-colors duration-150 relative cursor-pointer" onclick="toggleWebNotifications()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5.5 h-5.5" id="notif-bell-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                            </svg>
+                            <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full hidden"></span>
+                        </button>
+
                         <div class="hidden sm:flex flex-col text-right text-xs">
                             <span class="font-bold text-slate-900">{{ Auth::user()->name }}</span>
                             <span class="text-slate-500 text-[10px]">
@@ -230,7 +238,7 @@
     @endauth
 
     <script>
-        // Auto fadeout alerts after 5 seconds
+        // Auto-fadeout untuk alert sukses/error setelah 5 detik
         setTimeout(() => {
             ['success-alert', 'error-alert'].forEach(id => {
                 const el = document.getElementById(id);
@@ -241,9 +249,8 @@
                 }
             });
         }, 5000);
-    </script>
-    <script>
-        // Global AJAX Pagination Handler
+
+        // Handler AJAX untuk pagination agar tidak reload penuh
         document.addEventListener('click', function(e) {
             const link = e.target.closest('nav[role="navigation"] a, .pagination a');
             if (!link) return;
@@ -256,7 +263,6 @@
 
             e.preventDefault();
 
-            // Loading state (fade container slightly)
             container.style.opacity = '0.5';
             container.style.transition = 'opacity 0.15s ease';
 
@@ -269,26 +275,156 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newContainer = doc.getElementById(container.id);
-                    
+
                     if (newContainer) {
                         container.innerHTML = newContainer.innerHTML;
                         window.history.pushState({}, '', url);
-                        
-                        // Fire a custom event to notify that container content has changed
-                        const event = new CustomEvent('container-loaded', { 
-                            detail: { containerId: container.id } 
-                        });
-                        document.dispatchEvent(event);
+                        document.dispatchEvent(new CustomEvent('container-loaded', {
+                            detail: { containerId: container.id }
+                        }));
                     }
                     container.style.opacity = '1';
                 })
                 .catch(err => {
                     console.error('AJAX pagination failed:', err);
                     container.style.opacity = '1';
-                    // Fallback to standard page navigation
                     window.location.href = url;
                 });
         });
+    </script>
+
+    <script>
+        @if(Auth::check() && Auth::user()->role === 'mahasiswa')
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check status of browser notification
+            updateBellUI();
+
+            // Auto-start polling if permission is already granted
+            if (Notification.permission === 'granted') {
+                startPollingStatus();
+            }
+        });
+
+        function updateBellUI() {
+            const bellBtn = document.getElementById('notif-bell-btn');
+            const bellIcon = document.getElementById('notif-bell-icon');
+            const badge = document.getElementById('notif-badge');
+
+            if (!bellBtn || !bellIcon) return;
+
+            if (!('Notification' in window)) {
+                // Not supported
+                bellBtn.style.display = 'none';
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                bellIcon.classList.remove('text-slate-400', 'text-rose-500');
+                bellIcon.classList.add('text-blue-600');
+                bellIcon.setAttribute('title', 'Notifikasi Aktif');
+                badge.classList.add('hidden');
+            } else if (Notification.permission === 'denied') {
+                bellIcon.classList.remove('text-blue-600', 'text-slate-400');
+                bellIcon.classList.add('text-rose-500');
+                bellIcon.setAttribute('title', 'Notifikasi Diblokir oleh Browser');
+                badge.classList.remove('hidden');
+                badge.className = 'absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full';
+            } else {
+                // default (prompt)
+                bellIcon.classList.remove('text-blue-600', 'text-rose-500');
+                bellIcon.classList.add('text-slate-400');
+                bellIcon.setAttribute('title', 'Aktifkan Notifikasi Popup');
+                badge.classList.remove('hidden');
+                badge.className = 'absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full animate-ping';
+            }
+        }
+
+        function toggleWebNotifications() {
+            if (!('Notification' in window)) {
+                alert('Browser Anda tidak mendukung notifikasi desktop.');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                alert('Notifikasi sudah aktif!');
+                return;
+            }
+
+            Notification.requestPermission().then(permission => {
+                updateBellUI();
+                if (permission === 'granted') {
+                    startPollingStatus();
+                    new Notification("Notifikasi Aktif!", {
+                        body: "Anda akan menerima pemberitahuan ketika izin disetujui atau ditolak.",
+                        icon: "https://cdn-icons-png.flaticon.com/512/1827/1827349.png"
+                    });
+                }
+            });
+        }
+
+        let pollInterval = null;
+        function startPollingStatus() {
+            if (pollInterval) clearInterval(pollInterval);
+
+            // Poll immediately on start
+            checkLatestPermitStatus();
+
+            // Set interval to poll every 10 seconds
+            pollInterval = setInterval(checkLatestPermitStatus, 10000);
+        }
+
+        function checkLatestPermitStatus() {
+            fetch("{{ route('student.permits.latest-status') }}")
+                .then(response => {
+                    if (!response.ok) throw new Error();
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.latest) {
+                        localStorage.removeItem('last_permit_state');
+                        return;
+                    }
+
+                    const current = data.latest;
+                    const cachedStr = localStorage.getItem('last_permit_state');
+                    
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        // Jika ID sama tetapi status berubah
+                        if (cached.id === current.id && cached.status !== current.status) {
+                            // Tampilkan notifikasi
+                            let statusText = current.status === 'approved' ? 'DISETUJUI' : 
+                                             (current.status === 'rejected' ? 'DITOLAK' : current.status);
+                            
+                            let bodyText = `Izin ke "${current.destination}" telah ${statusText}.`;
+                            if (current.admin_note) {
+                                bodyText += ` Catatan: "${current.admin_note}"`;
+                            }
+
+                            if (Notification.permission === 'granted') {
+                                new Notification("Pembaruan Izin Asrama", {
+                                    body: bodyText,
+                                    icon: "https://cdn-icons-png.flaticon.com/512/1827/1827349.png",
+                                    tag: 'permit-update-' + current.id
+                                });
+                            }
+
+                            // Reload halaman agar tampilan dashboard terupdate langsung
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    }
+
+                    // Simpan state terakhir
+                    localStorage.setItem('last_permit_state', JSON.stringify({
+                        id: current.id,
+                        status: current.status
+                    }));
+                })
+                .catch(err => console.error('Gagal mengecek status izin:', err));
+        }
+        @endif
     </script>
     @stack('scripts')
 </body>

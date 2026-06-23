@@ -183,4 +183,79 @@ class StudentReturnTest extends TestCase
         $response->assertSessionHas('error', 'Akses ditolak.');
         $this->assertEquals('approved', $permit->refresh()->status);
     }
+
+    public function test_manager_can_approve_permit_with_note()
+    {
+        $adminUser = User::factory()->create(['role' => 'pengelola']);
+        $studentUser = User::factory()->create(['role' => 'mahasiswa']);
+        $student = $studentUser->student()->create(['nim' => 'NIM006', 'dorm_room' => 'A-102']);
+
+        $permit = Permit::create([
+            'student_id' => $student->id,
+            'type' => 'pesiar',
+            'destination' => 'Pasar',
+            'start_time' => Carbon::now()->addHour(),
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($adminUser)->post(route('admin.permits.approve', $permit), [
+            'admin_note' => 'Hati-hati di jalan ya.',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $permit->refresh();
+        $this->assertEquals('approved', $permit->status);
+        $this->assertEquals('Hati-hati di jalan ya.', $permit->admin_note);
+    }
+
+    public function test_manager_can_reject_permit_with_note()
+    {
+        $adminUser = User::factory()->create(['role' => 'pengelola']);
+        $studentUser = User::factory()->create(['role' => 'mahasiswa']);
+        $student = $studentUser->student()->create(['nim' => 'NIM007', 'dorm_room' => 'A-103']);
+
+        $permit = Permit::create([
+            'student_id' => $student->id,
+            'type' => 'pesiar',
+            'destination' => 'Pasar',
+            'start_time' => Carbon::now()->addHour(),
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($adminUser)->post(route('admin.permits.reject', $permit), [
+            'admin_note' => 'Izin ditolak karena masih jam kuliah.',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $permit->refresh();
+        $this->assertEquals('rejected', $permit->status);
+        $this->assertEquals('Izin ditolak karena masih jam kuliah.', $permit->admin_note);
+    }
+
+    public function test_student_can_check_latest_permit_status()
+    {
+        $studentUser = User::factory()->create(['role' => 'mahasiswa']);
+        $student = $studentUser->student()->create(['nim' => 'NIM008', 'dorm_room' => 'A-104']);
+
+        $permit = Permit::create([
+            'student_id' => $student->id,
+            'type' => 'pesiar',
+            'destination' => 'Apotek',
+            'start_time' => Carbon::now()->addHour(),
+            'status' => 'approved',
+            'admin_note' => 'Bawa struk pembelian obat.',
+        ]);
+
+        $response = $this->actingAs($studentUser)->get(route('student.permits.latest-status'));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'latest' => [
+                'id' => $permit->id,
+                'status' => 'approved',
+                'destination' => 'Apotek',
+                'admin_note' => 'Bawa struk pembelian obat.',
+            ]
+        ]);
+    }
 }

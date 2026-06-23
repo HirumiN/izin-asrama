@@ -20,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'action_by',
     'action_at',
     'return_photo',
-    'return_location'
+    'return_location',
+    'admin_note'
 ])]
 class Permit extends Model
 {

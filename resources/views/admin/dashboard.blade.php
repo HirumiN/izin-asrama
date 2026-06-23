@@ -427,7 +427,17 @@
                                         <div class="text-xs text-slate-500 font-medium">NIM: {{ $history->student->nim }}</div>
                                     </td>
                                     <td class="px-6 py-4 capitalize text-slate-800">{{ $history->type }}</td>
-                                    <td class="px-6 py-4 text-slate-800">{{ $history->destination }}</td>
+                                    <td class="px-6 py-4 text-slate-800">
+                                        <div>{{ $history->destination }}</div>
+                                        @if($history->admin_note)
+                                            <div class="text-[11px] text-slate-500 mt-1 italic flex items-center gap-1 font-medium bg-slate-100/50 border border-slate-200/50 rounded px-1.5 py-0.5 w-max max-w-xs">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3 text-slate-400 shrink-0">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                                </svg>
+                                                <span class="truncate" title="{{ $history->admin_note }}">{{ $history->admin_note }}</span>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4">{{ $history->start_time->format('d/m/Y, H:i') }}</td>
                                     <td class="px-6 py-4 text-slate-800">
                                         {{ $history->end_time ? $history->end_time->format('d/m/Y, H:i') : '-' }}
@@ -599,20 +609,65 @@
     }
 
     function singleAction(actionType, id) {
-        const form = document.createElement('form');
-        form.method = 'POST';
+        const modal = document.getElementById('action-modal');
+        const card = document.getElementById('action-modal-card');
+        const title = document.getElementById('action-modal-title');
+        const desc = document.getElementById('action-modal-desc');
+        const form = document.getElementById('action-modal-form');
+        const noteLabel = document.getElementById('action-note-label');
+        const noteInput = document.getElementById('admin_note');
+        const btnSubmit = document.getElementById('action-btn-submit');
+
+        // Set action url
         form.action = actionType === 'approve' 
             ? `/admin/permits/${id}/approve` 
             : `/admin/permits/${id}/reject`;
-        
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = "{{ csrf_token() }}";
-        form.appendChild(csrfInput);
-        
-        document.body.appendChild(form);
-        form.submit();
+
+        noteInput.value = '';
+
+        if (actionType === 'approve') {
+            title.innerText = 'Setujui Pengajuan Izin';
+            desc.innerText = 'Apakah Anda yakin ingin menyetujui pengajuan izin ini? Anda bisa menambahkan catatan opsional untuk mahasiswa di bawah ini.';
+            noteLabel.innerText = 'Catatan Persetujuan (Opsional)';
+            noteInput.placeholder = 'Contoh: Silakan keluar, hati-hati di jalan.';
+            noteInput.required = false;
+
+            btnSubmit.innerText = 'Setujui / ACC';
+            btnSubmit.className = 'flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center';
+        } else {
+            title.innerText = 'Tolak Pengajuan Izin';
+            desc.innerText = 'Apakah Anda yakin ingin menolak pengajuan izin ini? Harap tuliskan alasan penolakan agar mahasiswa mengetahuinya.';
+            noteLabel.innerText = 'Alasan Penolakan';
+            noteInput.placeholder = 'Contoh: Alasan tidak mendesak, atau kuota keluar penuh.';
+            noteInput.required = true;
+
+            btnSubmit.innerText = 'Tolak Izin';
+            btnSubmit.className = 'flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center';
+        }
+
+        // Move to body
+        document.body.appendChild(modal);
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'block';
+
+        setTimeout(() => {
+            card.style.transform = 'translate(-50%, -50%) scale(1)';
+            card.style.opacity = '1';
+        }, 10);
+    }
+
+    function closeActionModal() {
+        const modal = document.getElementById('action-modal');
+        const card = document.getElementById('action-modal-card');
+
+        card.style.transform = 'translate(-50%, -50%) scale(0.95)';
+        card.style.opacity = '0';
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
     }
 
     function openEvidenceModal(photoUrl, location, name, nim) {
@@ -664,6 +719,15 @@
                 }
             });
         }
+
+        const actionModal = document.getElementById('action-modal');
+        if (actionModal) {
+            actionModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeActionModal();
+                }
+            });
+        }
     });
 
     // Close modal on ESC key press
@@ -672,6 +736,11 @@
             const modal = document.getElementById('evidence-modal');
             if (modal && !modal.classList.contains('hidden')) {
                 closeEvidenceModal();
+            }
+
+            const actionModal = document.getElementById('action-modal');
+            if (actionModal && !actionModal.classList.contains('hidden')) {
+                closeActionModal();
             }
         }
     });
@@ -697,6 +766,46 @@
         <div style="margin-top: 16px;">
             <h3 id="evidence-modal-title" style="font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Bukti Pulang</h3>
             <p id="evidence-location" style="font-size: 12px; color: #cbd5e1; margin: 0;">-</p>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CATATAN PERSETUJUAN / PENOLAKAN -->
+<div id="action-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; display: none; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
+    <div id="action-modal-card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; width: 92%; max-width: 512px; background: #fff; border-radius: 16px; border: 1px solid rgba(226,232,240,0.8); box-shadow: 0 25px 50px rgba(0,0,0,0.25); overflow: hidden;">
+        <!-- Header Modal -->
+        <div class="px-6 py-4 border-b border-slate-150 flex items-center justify-between">
+            <h3 id="action-modal-title" class="text-lg font-bold text-slate-900">Konfirmasi Izin</h3>
+            <button type="button" onclick="closeActionModal()" class="text-slate-400 hover:text-slate-650 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Content Modal -->
+        <div class="p-6 space-y-6">
+            <p id="action-modal-desc" class="text-sm text-slate-600 font-medium"></p>
+            
+            <form id="action-modal-form" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="admin_note" id="action-note-label" class="block text-sm font-semibold text-slate-700">Catatan (Opsional)</label>
+                    <textarea name="admin_note" id="admin_note" rows="3"
+                        class="w-full mt-1.5 px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-950 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm"
+                        placeholder="Masukkan catatan atau alasan..."></textarea>
+                </div>
+
+                <!-- Buttons Group -->
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="closeActionModal()" class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-350 rounded-xl text-sm font-bold transition duration-150 transform active:scale-[0.98] flex items-center justify-center">
+                        Batal
+                    </button>
+                    <button type="submit" id="action-btn-submit" class="flex-1 py-3 px-4 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center">
+                        Konfirmasi
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

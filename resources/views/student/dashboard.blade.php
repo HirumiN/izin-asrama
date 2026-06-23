@@ -141,6 +141,12 @@
                         </div>
                     @endif
 
+                    @if($activePermit->admin_note)
+                        <div class="p-4 bg-emerald-50 border border-emerald-150 rounded-xl text-xs text-emerald-850 font-medium">
+                            <strong>Catatan Pengelola:</strong> "{{ $activePermit->admin_note }}"
+                        </div>
+                    @endif
+
                     <!-- Tombol Lapor Kembali Mandiri -->
                     <div class="pt-6 border-t border-slate-100 flex justify-center">
                         <button type="button" onclick="openReturnModal()" class="w-full px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center gap-2.5">
@@ -375,7 +381,15 @@
                                     {{ $history->type }}
                                 </td>
                                 <td class="px-6 py-4 text-slate-850">
-                                    {{ $history->destination }}
+                                    <div>{{ $history->destination }}</div>
+                                    @if($history->admin_note)
+                                        <div class="text-[11px] text-slate-500 mt-1 italic flex items-center gap-1 font-medium bg-slate-100/50 border border-slate-200/50 rounded px-1.5 py-0.5 w-max max-w-xs">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3 text-slate-400 shrink-0">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                            </svg>
+                                            <span class="truncate" title="{{ $history->admin_note }}">{{ $history->admin_note }}</span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $history->start_time->format('d/m/Y, H:i') }}

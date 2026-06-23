@@ -17,6 +17,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     Route::get('/dashboard', [StudentPermitController::class, 'index'])->name('dashboard');
     Route::post('/permits', [StudentPermitController::class, 'store'])->name('permits.store');
     Route::post('/permits/{permit}/return', [StudentPermitController::class, 'reportReturn'])->name('permits.return');
+    Route::get('/permits/latest-status', [StudentPermitController::class, 'latestStatus'])->name('permits.latest-status');
 });
 
 // Group Rute Pengelola/Admin (Grup Auth & Role Pengelola)

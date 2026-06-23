@@ -152,4 +152,24 @@ class PermitController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat menyimpan laporan: ' . $e->getMessage());
         }
     }
+
+    public function latestStatus()
+    {
+        $student = Auth::user()->student;
+
+        if (!$student) {
+            return response()->json(['error' => 'Profil mahasiswa tidak ditemukan.'], 404);
+        }
+
+        $latestPermit = $student->permits()->latest()->first();
+
+        return response()->json([
+            'latest' => $latestPermit ? [
+                'id' => $latestPermit->id,
+                'status' => $latestPermit->status,
+                'destination' => $latestPermit->destination,
+                'admin_note' => $latestPermit->admin_note,
+            ] : null
+        ]);
+    }
 }
