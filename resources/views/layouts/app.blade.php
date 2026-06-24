@@ -10,6 +10,9 @@
     <meta name="apple-mobile-web-app-title" content="E-Asrama">
     <title>@yield('title', 'E-Asrama') - Sistem Izin Asrama</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
