@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublicInfoController;
 use App\Http\Controllers\Student\PermitController as StudentPermitController;
 use App\Http\Controllers\Admin\PermitController as AdminPermitController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
@@ -11,6 +12,9 @@ Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Rute Publik
+Route::get('/info-mahasiswa', [PublicInfoController::class, 'index'])->name('public.student-info');
 
 // Group Rute Mahasiswa (Grup Auth & Role Mahasiswa)
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.')->group(function () {
