@@ -46,15 +46,28 @@
                     </div>
                 </div>
                 
-                @if($student->isSuspended())
-                    <span class="px-4 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-full uppercase tracking-wider text-center">
-                        Status: Ditangguhkan
-                    </span>
-                @else
-                    <span class="px-4 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-full uppercase tracking-wider text-center">
-                        Status: Aktif
-                    </span>
-                @endif
+                <div class="flex flex-col sm:flex-row gap-2">
+                    @if($activePermit)
+                        <span class="px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-sm">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            </span>
+                            Sedang Diluar: {{ str_replace('_', ' ', $activePermit->type) }} ke {{ $activePermit->destination }}
+                        </span>
+                    @else
+                        <span class="px-4 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-full uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-sm">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                            Berada di Asrama
+                        </span>
+                    @endif
+
+                    @if($student->isSuspended())
+                        <span class="px-4 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-full uppercase tracking-wider text-center shadow-sm">
+                            Izin Ditangguhkan
+                        </span>
+                    @endif
+                </div>
             </div>
 
             <!-- Tabel Riwayat -->

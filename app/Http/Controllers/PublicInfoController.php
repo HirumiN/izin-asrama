@@ -20,6 +20,8 @@ class PublicInfoController extends Controller
             if ($student) {
                 $maskedName = $this->maskName($student->user->name);
 
+                $activePermit = $student->permits()->where('status', 'approved')->first();
+
                 $historyPermits = Permit::where('student_id', $student->id)
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
@@ -27,7 +29,7 @@ class PublicInfoController extends Controller
             }
         }
 
-        return view('public.student-info', compact('student', 'historyPermits', 'maskedName'));
+        return view('public.student-info', compact('student', 'historyPermits', 'maskedName', 'activePermit'));
     }
 
     private function maskName($name)
