@@ -1,4 +1,4 @@
-// E-Izin Asrama — Service Worker
+// E-Asrama — Service Worker
 // Versi cache: ubah string ini untuk memaksa update cache saat deploy
 const CACHE_VERSION = 'eizin-v1';
 

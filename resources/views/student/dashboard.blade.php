@@ -236,6 +236,16 @@
                         @csrf
                         <input type="hidden" name="type" id="input-type" value="pesiar">
 
+                        <!-- Bidang khusus Bermalam: Tipe Bermalam -->
+                        <div id="wrapper-bermalam-type" class="hidden">
+                            <label for="bermalam_type" class="block text-sm font-semibold text-slate-700">Jenis Izin Bermalam</label>
+                            <select id="bermalam_type" onchange="updateBermalamType(this.value)"
+                                class="w-full mt-1 px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm cursor-pointer">
+                                <option value="bermalam_biasa">Reguler (Jumat Sore s/d Senin Pagi)</option>
+                                <option value="bermalam_urgensi">Urgent (Kepentingan Mendesak)</option>
+                            </select>
+                        </div>
+
                         <!-- Tujuan -->
                         <div>
                             <label for="destination" class="block text-sm font-semibold text-slate-700">Tujuan Kepergian</label>
@@ -258,7 +268,7 @@
 
                             <!-- Bidang khusus Bermalam: Tanggal Kembali -->
                             <div id="wrapper-end-time" class="hidden">
-                                <label for="end_time" class="block text-sm font-semibold text-slate-700">Rencana Kembali (Maks. Jam 17:00)</label>
+                                <label for="end_time" class="block text-sm font-semibold text-slate-700">Rencana Kembali (Maks. Jam 06:30)</label>
                                 <input type="date" name="end_time" id="end_time"
                                     value="{{ old('end_time') }}"
                                     class="w-full mt-1 px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-955 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm">
@@ -291,10 +301,12 @@
                         const labelStartTime = document.getElementById('label-start-time');
                         const wrapperEndTime = document.getElementById('wrapper-end-time');
                         const wrapperReason = document.getElementById('wrapper-reason');
-
-                        inputType.value = type;
+                        const wrapperBermalamType = document.getElementById('wrapper-bermalam-type');
+                        const bermalamTypeSelect = document.getElementById('bermalam_type');
 
                         if (type === 'pesiar') {
+                            inputType.value = 'pesiar';
+
                             tabPesiar.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
                             tabPesiar.classList.remove('text-slate-500');
                             
@@ -302,6 +314,7 @@
                             tabBermalam.classList.add('text-slate-500');
 
                             labelStartTime.innerText = "Waktu / Jam Keluar";
+                            wrapperBermalamType.classList.add('hidden');
                             wrapperEndTime.classList.add('hidden');
                             wrapperReason.classList.add('hidden');
                             
@@ -314,6 +327,27 @@
                             tabPesiar.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
                             tabPesiar.classList.add('text-slate-500');
 
+                            wrapperBermalamType.classList.remove('hidden');
+                            updateBermalamType(bermalamTypeSelect.value);
+                        }
+                    }
+
+                    function updateBermalamType(val) {
+                        const inputType = document.getElementById('input-type');
+                        const labelStartTime = document.getElementById('label-start-time');
+                        const wrapperEndTime = document.getElementById('wrapper-end-time');
+                        const wrapperReason = document.getElementById('wrapper-reason');
+
+                        inputType.value = val;
+
+                        if (val === 'bermalam_biasa') {
+                            labelStartTime.innerText = "Tanggal & Jam Keluar (Mulai Jumat)";
+                            wrapperEndTime.classList.add('hidden'); // Disembunyikan karena dikunci ke Senin otomatis
+                            wrapperReason.classList.remove('hidden');
+
+                            document.getElementById('end_time').required = false;
+                            document.getElementById('reason').required = true;
+                        } else if (val === 'bermalam_urgensi') {
                             labelStartTime.innerText = "Tanggal & Jam Keluar";
                             wrapperEndTime.classList.remove('hidden');
                             wrapperReason.classList.remove('hidden');
@@ -324,8 +358,11 @@
                     }
 
                     // Menjaga input tipe jika terjadi validasi error
-                    @if(old('type') === 'bermalam')
+                    @if(old('type') === 'bermalam_biasa' || old('type') === 'bermalam_urgensi')
+                        document.getElementById('bermalam_type').value = '{{ old('type') }}';
                         setIzinType('bermalam');
+                    @else
+                        setIzinType('pesiar');
                     @endif
                 </script>
             @endif
@@ -343,7 +380,7 @@
                 </h3>
                 <ul class="space-y-3 text-xs text-slate-700 list-disc list-inside font-medium">
                     <li>Izin pesiar wajib kembali pada hari yang sama paling lambat pukul <strong class="text-slate-900">21:00 WIB</strong>.</li>
-                    <li>Izin bermalam wajib kembali paling lambat pukul <strong class="text-slate-900">17:00 WIB</strong> pada tanggal kepulangan yang disetujui.</li>
+                    <li>Izin bermalam wajib kembali paling lambat pukul <strong class="text-slate-900">06:30 WIB</strong> pada tanggal kepulangan yang disetujui (Atau hari Senin untuk Bermalam Biasa).</li>
                     <li>Pelanggaran batas waktu (keterlambatan) akan <strong class="text-rose-600">tercatat otomatis oleh sistem</strong> dan mempengaruhi sanksi asrama.</li>
                     <li>Pastikan melapor kembali ke Pos Asrama dan meminta pengelola untuk <strong class="text-blue-600">melakukan Scan/Lapor Kembali</strong> untuk menyelesaikan izin.</li>
                 </ul>
@@ -378,7 +415,7 @@
                         @foreach($historyPermits as $history)
                             <tr class="hover:bg-slate-50/50 transition duration-150">
                                 <td class="px-6 py-4 font-bold text-slate-800 capitalize">
-                                    {{ $history->type }}
+                                    {{ str_replace('_', ' ', $history->type) }}
                                 </td>
                                 <td class="px-6 py-4 text-slate-850">
                                     <div>{{ $history->destination }}</div>

@@ -159,7 +159,16 @@
                                             <div class="text-xs text-slate-500 font-medium">NIM: {{ $permit->student->nim }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-slate-800">{{ $permit->student->dorm_room }}</td>
-                                        <td class="px-6 py-4 text-slate-800">{{ $permit->destination }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-slate-800">{{ $permit->destination }}</div>
+                                            <div class="mt-1">
+                                                @if($permit->type === 'bermalam_biasa')
+                                                    <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-[10px] font-bold uppercase">Biasa</span>
+                                                @elseif($permit->type === 'bermalam_urgensi')
+                                                    <span class="px-2 py-0.5 bg-amber-50 border border-amber-100 text-amber-700 rounded text-[10px] font-bold uppercase">Urgensi</span>
+                                                @endif
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4">{{ $permit->start_time->format('d/m/Y, H:i') }}</td>
                                         <td class="px-6 py-4 text-slate-800">
                                             {{ $permit->end_time ? $permit->end_time->format('d/m/Y') : '-' }}
@@ -313,7 +322,16 @@
                                         <div class="text-xs text-slate-500">NIM: {{ $permit->student->nim }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-slate-800">{{ $permit->student->dorm_room }}</td>
-                                    <td class="px-6 py-4 text-slate-850">{{ $permit->destination }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-slate-850">{{ $permit->destination }}</div>
+                                        <div class="mt-1">
+                                            @if($permit->type === 'bermalam_biasa')
+                                                <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-[10px] font-bold uppercase">Biasa</span>
+                                            @elseif($permit->type === 'bermalam_urgensi')
+                                                <span class="px-2 py-0.5 bg-amber-50 border border-amber-100 text-amber-700 rounded text-[10px] font-bold uppercase">Urgensi</span>
+                                            @endif
+                                        </div>
+                                    </td>
                                     <td class="px-6 py-4">{{ $permit->start_time->format('d/m/Y, H:i') }}</td>
                                     <td class="px-6 py-4 {{ $isOverdue ? 'text-rose-600 font-bold' : 'text-slate-850' }}">
                                         {{ $permit->end_time->format('d/m/Y, H:i') }}
@@ -426,7 +444,7 @@
                                         <div class="font-bold text-slate-900">{{ $history->student->user->name }}</div>
                                         <div class="text-xs text-slate-500 font-medium">NIM: {{ $history->student->nim }}</div>
                                     </td>
-                                    <td class="px-6 py-4 capitalize text-slate-800">{{ $history->type }}</td>
+                                    <td class="px-6 py-4 capitalize text-slate-800">{{ str_replace('_', ' ', $history->type) }}</td>
                                     <td class="px-6 py-4 text-slate-800">
                                         <div>{{ $history->destination }}</div>
                                         @if($history->admin_note)

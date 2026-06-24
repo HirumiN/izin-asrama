@@ -1,4 +1,4 @@
-# 🚪 Sistem Izin Keluar-Masuk Asrama (E-Izin Asrama)
+# 🚪 Sistem Izin Keluar-Masuk Asrama (E-Asrama)
 
 Sistem Informasi Manajemen Izin Keluar-Masuk Asrama adalah platform berbasis web modern untuk mendigitalisasi proses pengajuan, persetujuan, dan pencatatan izin mahasiswa asrama secara real-time.
 

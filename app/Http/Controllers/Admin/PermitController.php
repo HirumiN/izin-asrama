@@ -22,7 +22,7 @@ class PermitController extends Controller
 
         $pendingBermalam = Permit::with('student.user')
             ->where('status', 'pending')
-            ->where('type', 'bermalam')
+            ->whereIn('type', ['bermalam_biasa', 'bermalam_urgensi'])
             ->orderBy('created_at', 'asc')
             ->paginate(10, ['*'], 'pending_bermalam_page')
             ->withQueryString();
@@ -39,7 +39,7 @@ class PermitController extends Controller
 
         $activeBermalam = Permit::with('student.user')
             ->where('status', 'approved')
-            ->where('type', 'bermalam')
+            ->whereIn('type', ['bermalam_biasa', 'bermalam_urgensi'])
             ->orderBy('end_time', 'asc')
             ->paginate(10, ['*'], 'active_bermalam_page')
             ->withQueryString();
@@ -177,10 +177,10 @@ class PermitController extends Controller
 
         if ($status === 'approved') {
             // Pesiar: kembali hari yang sama jam 21:00
-            // Bermalam: kembali sesuai tanggal yang diajukan mahasiswa jam 17:00
+            // Bermalam: kembali sesuai tanggal yang ditentukan jam 06:30
             $permit->end_time = $permit->type === 'pesiar'
                 ? Carbon::parse($permit->start_time)->setTime(21, 0, 0)
-                : Carbon::parse($permit->end_time)->setTime(17, 0, 0);
+                : Carbon::parse($permit->end_time)->setTime(6, 30, 0);
         }
 
         $permit->save();

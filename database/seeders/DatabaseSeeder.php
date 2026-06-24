@@ -69,7 +69,7 @@ class DatabaseSeeder extends Seeder
         ]);
         Permit::create([
             'student_id' => $student2->id,
-            'type' => 'bermalam',
+            'type' => 'bermalam_biasa',
             'destination' => 'Rumah Orang Tua',
             'reason' => 'Acara keluarga penting',
             'start_time' => Carbon::now()->subDay(),

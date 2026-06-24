@@ -1,6 +1,6 @@
 {
-    "name": "E-Izin Asrama",
-    "short_name": "E-Izin",
+    "name": "E-Asrama",
+    "short_name": "E-Asrama",
     "description": "Sistem Manajemen Izin Keluar Asrama",
     "start_url": "/",
     "display": "standalone",

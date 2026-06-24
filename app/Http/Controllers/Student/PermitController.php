@@ -61,14 +61,14 @@ class PermitController extends Controller
         }
 
         $request->validate([
-            'type' => 'required|in:pesiar,bermalam',
+            'type' => 'required|in:pesiar,bermalam_biasa,bermalam_urgensi',
             'destination' => 'required|string|max:255',
-            'reason' => 'required_if:type,bermalam|nullable|string',
+            'reason' => 'required_unless:type,pesiar|nullable|string',
             'start_time' => 'required|date',
-            'end_time' => 'required_if:type,bermalam|nullable|date|after:start_time',
+            'end_time' => 'required_if:type,bermalam_urgensi|nullable|date|after:start_time',
         ], [
-            'reason.required_if' => 'Alasan wajib diisi untuk izin bermalam.',
-            'end_time.required_if' => 'Tanggal kembali wajib diisi untuk izin bermalam.',
+            'reason.required_unless' => 'Alasan wajib diisi untuk izin bermalam.',
+            'end_time.required_if' => 'Tanggal kembali wajib diisi untuk izin bermalam urgensi.',
             'end_time.after' => 'Tanggal kembali harus setelah tanggal keluar.',
         ]);
 
@@ -81,8 +81,11 @@ class PermitController extends Controller
         // Parsing input waktu ke format Carbon datetime
         $permit->start_time = Carbon::parse($request->start_time);
         
-        if ($request->type === 'bermalam') {
-            $permit->end_time = Carbon::parse($request->end_time);
+        if ($request->type === 'bermalam_urgensi') {
+            $permit->end_time = Carbon::parse($request->end_time)->setTime(6, 30, 0);
+        } elseif ($request->type === 'bermalam_biasa') {
+            // Otomatis menetapkan Senin terdekat pukul 06:30 WIB
+            $permit->end_time = Carbon::parse($request->start_time)->next(Carbon::MONDAY)->setTime(6, 30, 0);
         }
 
         $permit->status = 'pending';

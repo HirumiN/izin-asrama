@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-Izin">
-    <title>@yield('title', 'E-Izin Asrama') - Sistem Izin Asrama</title>
+    <meta name="apple-mobile-web-app-title" content="E-Asrama">
+    <title>@yield('title', 'E-Asrama') - Sistem Izin Asrama</title>
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
@@ -75,7 +75,7 @@
                         </svg>
                     </div>
                     <span class="text-lg font-bold text-slate-800">
-                        E-Izin Asrama
+                        E-Asrama
                     </span>
                 </div>
             </div>
