@@ -12,7 +12,8 @@ use App\Http\Controllers\Admin\PrayerMonitoringController as AdminPrayerMonitori
 
 Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+// Throttle: max 10 percobaan login per menit per IP untuk cegah brute-force
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rute Publik

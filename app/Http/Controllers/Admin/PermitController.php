@@ -116,12 +116,14 @@ class PermitController extends Controller
         $newStatus = $action === 'approve' ? 'approved' : 'rejected';
         $count = 0;
 
-        foreach ($request->permit_ids as $id) {
-            $permit = Permit::find($id);
-            if ($permit && $permit->status === 'pending') {
-                $this->applyPermitDecision($permit, $newStatus);
-                $count++;
-            }
+        // FIX N+1: Ambil semua permit sekaligus dengan whereIn, bukan find() per ID
+        $permits = Permit::whereIn('id', $request->permit_ids)
+            ->where('status', 'pending')
+            ->get();
+
+        foreach ($permits as $permit) {
+            $this->applyPermitDecision($permit, $newStatus);
+            $count++;
         }
 
         $message = $action === 'approve'

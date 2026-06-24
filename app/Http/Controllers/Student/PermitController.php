@@ -33,7 +33,8 @@ class PermitController extends Controller
         $historyPermits = $student->permits()
             ->whereIn('status', ['rejected', 'returned_on_time', 'returned_late'])
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('student.dashboard', compact('student', 'activePermit', 'pendingPermit', 'historyPermits'));
     }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
-use App\Models\Permit;
 use Illuminate\Http\Request;
 
 class PublicInfoController extends Controller
@@ -16,6 +15,14 @@ class PublicInfoController extends Controller
         $activePermit = null;
 
         if ($request->filled('nim')) {
+            // Validasi: NIM hanya boleh alfanumerik, maks 50 karakter
+            $request->validate([
+                'nim' => 'required|string|alpha_num|max:50',
+            ], [
+                'nim.alpha_num' => 'NIM hanya boleh mengandung huruf dan angka.',
+                'nim.max'       => 'NIM tidak boleh lebih dari 50 karakter.',
+            ]);
+
             $student = Student::with('user')->where('nim', $request->nim)->first();
 
             if ($student) {
@@ -23,7 +30,7 @@ class PublicInfoController extends Controller
 
                 $activePermit = $student->permits()->where('status', 'approved')->first();
 
-                $historyPermits = Permit::where('student_id', $student->id)
+                $historyPermits = $student->permits()
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
                     ->withQueryString();
