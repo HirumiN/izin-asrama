@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublicInfoController;
 use App\Http\Controllers\Student\PermitController as StudentPermitController;
+use App\Http\Controllers\Student\PrayerController as StudentPrayerController;
 use App\Http\Controllers\Admin\PermitController as AdminPermitController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
+use App\Http\Controllers\Admin\PrayerMonitoringController as AdminPrayerMonitoringController;
 
 Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -22,6 +24,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     Route::post('/permits', [StudentPermitController::class, 'store'])->name('permits.store');
     Route::post('/permits/{permit}/return', [StudentPermitController::class, 'reportReturn'])->name('permits.return');
     Route::get('/permits/latest-status', [StudentPermitController::class, 'latestStatus'])->name('permits.latest-status');
+    
+    // Rute Absen Shalat
+    Route::get('/sholat', [StudentPrayerController::class, 'index'])->name('sholat.index');
+    Route::post('/sholat', [StudentPrayerController::class, 'store'])->name('sholat.store');
 });
 
 // Group Rute Pengelola/Admin (Grup Auth & Role Pengelola)
@@ -35,4 +41,7 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
     Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
     Route::post('/students/{student}/lift-suspension', [AdminStudentController::class, 'liftSuspension'])->name('students.liftSuspension');
+    
+    // Rute Monitoring Absen Shalat
+    Route::get('/sholat', [AdminPrayerMonitoringController::class, 'index'])->name('sholat.index');
 });

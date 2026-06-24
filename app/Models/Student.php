@@ -26,6 +26,11 @@ class Student extends Model
         return $this->hasMany(Permit::class);
     }
 
+    public function prayerAttendances(): HasMany
+    {
+        return $this->hasMany(PrayerAttendance::class);
+    }
+
     /**
      * Cek apakah mahasiswa sedang ditangguhkan.
      */

@@ -13,6 +13,7 @@ class PublicInfoController extends Controller
         $student = null;
         $historyPermits = null;
         $maskedName = null;
+        $activePermit = null;
 
         if ($request->filled('nim')) {
             $student = Student::with('user')->where('nim', $request->nim)->first();
