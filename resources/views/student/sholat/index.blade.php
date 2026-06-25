@@ -7,7 +7,7 @@
 <div class="space-y-8 max-w-6xl mx-auto">
     <!-- Header Info & Desain Banner Premium -->
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 p-8 text-white shadow-lg border border-white/10">
-        <!-- Dekorasi Ornamen Latar Belakang -->
+        <!-- Dekorasi Latar Belakang -->
         <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-500/25 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -58,8 +58,8 @@
                     'title' => 'Maghrib'
                 ],
                 'isya' => [
-                    'bg' => 'from-slate-650/10 to-slate-900/5',
-                    'border' => 'border-slate-300/65',
+                    'bg' => 'from-slate-600/10 to-slate-900/5',
+                    'border' => 'border-slate-350',
                     'icon' => '<svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>',
                     'title' => 'Isya'
                 ],
@@ -71,7 +71,7 @@
                 $attendance = $todayAttendances->get($prayer);
                 $theme = $prayerThemes[$prayer];
             @endphp
-            <div class="glass-card overflow-hidden border {{ $theme['border'] }} bg-gradient-to-br {{ $theme['bg'] }} shadow-sm flex flex-col justify-between h-full hover:shadow-md transition-all duration-200 rounded-2xl group">
+            <div class="glass-card overflow-hidden border {{ $theme['border'] }} bg-gradient-to-br {{ $theme['bg'] }} shadow-sm flex flex-col justify-between h-full hover:shadow-md transition-all duration-205 rounded-2xl group">
                 <!-- Card Header -->
                 <div class="p-5 border-b border-slate-100/80 flex items-center justify-between bg-white/40">
                     <span class="text-base font-bold text-slate-800 tracking-tight">{{ $theme['title'] }}</span>
@@ -86,22 +86,22 @@
                         <!-- Tampilan Jika Sudah Absen -->
                         <div class="text-center py-4 space-y-4" id="status-display-{{ $prayer }}">
                             @if($attendance->status === 'berjamaah')
-                                <div class="inline-flex p-3 bg-emerald-55/15 text-emerald-600 rounded-2xl border border-emerald-200/50 shadow-sm">
+                                <div class="inline-flex p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-200/50 shadow-sm">
                                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                                 </div>
                                 <p class="text-sm font-extrabold text-emerald-800">Berjamaah di Masjid</p>
                             @elseif($attendance->status === 'munfarid')
-                                <div class="inline-flex p-3 bg-blue-55/15 text-blue-600 rounded-2xl border border-blue-200/50 shadow-sm">
+                                <div class="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-200/50 shadow-sm">
                                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                                 </div>
                                 <p class="text-sm font-extrabold text-blue-800">Munfarid (Sendiri)</p>
                             @elseif($attendance->status === 'sakit')
-                                <div class="inline-flex p-3 bg-amber-55/15 text-amber-600 rounded-2xl border border-amber-200/50 shadow-sm">
+                                <div class="inline-flex p-3 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200/50 shadow-sm">
                                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
                                 </div>
                                 <p class="text-sm font-extrabold text-amber-800">Sakit</p>
                             @elseif($attendance->status === 'izin')
-                                <div class="inline-flex p-3 bg-slate-100/80 text-slate-655 rounded-2xl border border-slate-250 shadow-sm">
+                                <div class="inline-flex p-3 bg-slate-100 text-slate-650 rounded-2xl border border-slate-200 shadow-sm">
                                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0l-3-3m3 3h-7.5"/></svg>
                                 </div>
                                 <p class="text-sm font-extrabold text-slate-800">Izin / Bermalam</p>
@@ -119,76 +119,110 @@
                         </div>
                     @endif
 
-                    <!-- Form Input Absen (Gaya Custom Cards yang Sangat Responsif) -->
+                    <!-- Form Input Absen (Menggunakan Card Grid Horizontal & Responsif) -->
                     <form action="{{ route('student.sholat.store') }}" method="POST" 
                           id="form-{{ $prayer }}" 
                           class="{{ $attendance ? 'hidden' : '' }} space-y-4">
                         @csrf
                         <input type="hidden" name="prayer_time" value="{{ $prayer }}">
                         
-                        <div class="space-y-3">
+                        <div class="space-y-2.5">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Pilih Status</label>
                             
-                            <div class="grid grid-cols-1 gap-2">
+                            <!-- Grid Pilihan (Horizontal 2x2 di HP, 4 sejajar di Desktop jika muat) -->
+                            <div class="grid grid-cols-2 gap-2">
                                 <!-- Berjamaah Option -->
-                                <label class="relative flex items-center p-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition select-none group">
+                                <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition select-none group text-center min-h-[85px] shadow-sm">
                                     <input type="radio" name="status" value="berjamaah" required 
                                         {{ $attendance && $attendance->status === 'berjamaah' ? 'checked' : '' }}
-                                        class="peer sr-only">
+                                        class="peer" style="position: absolute; opacity: 0; pointer-events: none;">
                                     <div class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50/15 absolute inset-0 rounded-xl border border-transparent transition-all pointer-events-none"></div>
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-emerald-600 peer-checked:bg-emerald-600 flex items-center justify-center shrink-0 transition-colors">
-                                        <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    
+                                    <!-- Indicator dot on top-right -->
+                                    <div class="absolute top-2 right-2 w-3.5 h-3.5 rounded-full border border-slate-300 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-600 flex items-center justify-center transition-all">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 ml-2.5 group-hover:text-slate-900 transition-colors">Berjamaah</span>
+
+                                    <!-- Option Icon -->
+                                    <div class="text-slate-400 group-hover:text-slate-655 peer-checked:text-emerald-600 transition-colors duration-150">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M12 12.75a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                                    </div>
+                                    
+                                    <span class="text-[11px] font-bold text-slate-600 mt-2 block transition-colors group-hover:text-slate-900 peer-checked:text-emerald-700">Berjamaah</span>
                                 </label>
 
                                 <!-- Munfarid Option -->
-                                <label class="relative flex items-center p-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition select-none group">
+                                <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition select-none group text-center min-h-[85px] shadow-sm">
                                     <input type="radio" name="status" value="munfarid" 
                                         {{ $attendance && $attendance->status === 'munfarid' ? 'checked' : '' }}
-                                        class="peer sr-only">
+                                        class="peer" style="position: absolute; opacity: 0; pointer-events: none;">
                                     <div class="peer-checked:border-blue-500 peer-checked:bg-blue-50/15 absolute inset-0 rounded-xl border border-transparent transition-all pointer-events-none"></div>
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center shrink-0 transition-colors">
-                                        <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    
+                                    <!-- Indicator dot on top-right -->
+                                    <div class="absolute top-2 right-2 w-3.5 h-3.5 rounded-full border border-slate-300 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center transition-all">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 ml-2.5 group-hover:text-slate-900 transition-colors">Munfarid</span>
+
+                                    <!-- Option Icon -->
+                                    <div class="text-slate-400 group-hover:text-slate-655 peer-checked:text-blue-600 transition-colors duration-150">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                    </div>
+                                    
+                                    <span class="text-[11px] font-bold text-slate-600 mt-2 block transition-colors group-hover:text-slate-900 peer-checked:text-blue-700">Munfarid</span>
                                 </label>
 
                                 <!-- Sakit Option -->
-                                <label class="relative flex items-center p-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition select-none group">
+                                <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition select-none group text-center min-h-[85px] shadow-sm">
                                     <input type="radio" name="status" value="sakit" 
                                         {{ $attendance && $attendance->status === 'sakit' ? 'checked' : '' }}
-                                        class="peer sr-only">
+                                        class="peer" style="position: absolute; opacity: 0; pointer-events: none;">
                                     <div class="peer-checked:border-amber-500 peer-checked:bg-amber-50/15 absolute inset-0 rounded-xl border border-transparent transition-all pointer-events-none"></div>
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-amber-600 peer-checked:bg-amber-600 flex items-center justify-center shrink-0 transition-colors">
-                                        <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    
+                                    <!-- Indicator dot on top-right -->
+                                    <div class="absolute top-2 right-2 w-3.5 h-3.5 rounded-full border border-slate-300 bg-white peer-checked:border-amber-600 peer-checked:bg-amber-600 flex items-center justify-center transition-all">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 ml-2.5 group-hover:text-slate-900 transition-colors">Sakit</span>
+
+                                    <!-- Option Icon -->
+                                    <div class="text-slate-400 group-hover:text-slate-655 peer-checked:text-amber-600 transition-colors duration-150">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                    </div>
+                                    
+                                    <span class="text-[11px] font-bold text-slate-600 mt-2 block transition-colors group-hover:text-slate-900 peer-checked:text-amber-700">Sakit</span>
                                 </label>
 
                                 <!-- Izin Option -->
-                                <label class="relative flex items-center p-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition select-none group">
+                                <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition select-none group text-center min-h-[85px] shadow-sm">
                                     <input type="radio" name="status" value="izin" 
                                         {{ $attendance && $attendance->status === 'izin' ? 'checked' : '' }}
-                                        class="peer sr-only">
-                                    <div class="peer-checked:border-slate-550 peer-checked:bg-slate-100 absolute inset-0 rounded-xl border border-transparent transition-all pointer-events-none"></div>
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-slate-600 peer-checked:bg-slate-600 flex items-center justify-center shrink-0 transition-colors">
-                                        <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                        class="peer" style="position: absolute; opacity: 0; pointer-events: none;">
+                                    <div class="peer-checked:border-slate-500 peer-checked:bg-slate-100 absolute inset-0 rounded-xl border border-transparent transition-all pointer-events-none"></div>
+                                    
+                                    <!-- Indicator dot on top-right -->
+                                    <div class="absolute top-2 right-2 w-3.5 h-3.5 rounded-full border border-slate-300 bg-white peer-checked:border-slate-600 peer-checked:bg-slate-600 flex items-center justify-center transition-all">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 ml-2.5 group-hover:text-slate-900 transition-colors">Izin / Luar</span>
+
+                                    <!-- Option Icon -->
+                                    <div class="text-slate-400 group-hover:text-slate-655 peer-checked:text-slate-600 transition-colors duration-150">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0l-3-3m3 3h-7.5"/></svg>
+                                    </div>
+                                    
+                                    <span class="text-[11px] font-bold text-slate-600 mt-2 block transition-colors group-hover:text-slate-900 peer-checked:text-slate-700">Izin / Luar</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div class="flex gap-2 pt-1.5">
+                        <!-- Tombol Aksi di Kanan Bawah -->
+                        <div class="flex justify-end gap-2 pt-2">
                             @if($attendance)
                                 <button type="button" onclick="cancelEdit('{{ $prayer }}')"
-                                    class="flex-1 py-2 px-3 border border-slate-250 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-105 transition-all">
+                                    class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-100 transition duration-150">
                                     Batal
                                 </button>
                             @endif
                             <button type="submit" 
-                                class="flex-1 py-2 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-md active:scale-95 transform">
+                                class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-md active:scale-95 transform">
                                 Simpan
                             </button>
                         </div>
@@ -257,7 +291,7 @@
                                                     Sakit
                                                 </span>
                                             @elseif($att->status === 'izin')
-                                                <span class="inline-flex px-2.5 py-1 bg-slate-105 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                                                <span class="inline-flex px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-655 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                                                     Izin
                                                 </span>
                                             @endif
