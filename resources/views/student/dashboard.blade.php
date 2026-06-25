@@ -189,11 +189,11 @@
                                 {{ $pendingPermit->start_time->translatedFormat('d F Y, H:i') }} WIB
                             </p>
                         </div>
-                        @if($pendingPermit->type === 'bermalam')
+                        @if(str_starts_with($pendingPermit->type, 'bermalam'))
                             <div>
                                 <p class="text-slate-500 font-semibold">Rencana Kembali</p>
                                 <p class="font-bold text-slate-800 mt-1">
-                                    {{ $pendingPermit->end_time->translatedFormat('d F Y') }}
+                                    {{ $pendingPermit->end_time?->translatedFormat('d F Y') ?? '-' }}
                                 </p>
                             </div>
                             <div>

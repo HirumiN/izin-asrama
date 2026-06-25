@@ -96,7 +96,7 @@
                     <span class="text-blue-600">Sandi: password</span>
                 </div>
                 <div class="flex justify-between p-2 bg-slate-50/80 rounded-lg border border-slate-200/80 shadow-sm">
-                    <span><strong>Mahasiswa:</strong> andi@asrama.com</span>
+                    <span><strong>Mahasiswa:</strong> P17230251001</span>
                     <span class="text-blue-600">Sandi: password</span>
                 </div>
             </div>

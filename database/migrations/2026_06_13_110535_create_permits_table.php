@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('reason')->nullable();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'returned_on_time', 'returned_late'])->default('pending');
+            $table->string('status')->default('pending'); // pending, approved, rejected, returned_on_time, returned_late
             $table->timestamp('actual_return_time')->nullable();
             $table->integer('lateness_duration')->nullable(); // Dalam menit
             $table->string('return_photo')->nullable();

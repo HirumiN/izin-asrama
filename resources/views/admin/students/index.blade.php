@@ -142,7 +142,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     @if($student->isSuspended())
-                                        <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" onsubmit="return confirm('Yakin ingin mencabut penangguhan untuk {{ $student->user->name }}?')">
+                                        <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" onsubmit="return confirm('Yakin ingin mencabut penangguhan untuk ' + {{ Js::from($student->user->name) }} + '?')">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-emerald-100 rounded-lg text-xs font-bold hover:bg-emerald-700 transition duration-150 cursor-pointer shadow-sm">
                                                 Cabut Penangguhan

@@ -52,9 +52,11 @@ class PermitController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('student.user', fn($q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('nim', 'like', "%{$search}%")
+            $query->whereHas('student', fn($q) => $q
+                ->where('nim', 'like', "%{$search}%")
+                ->orWhereHas('user', fn($uq) => $uq
+                    ->where('name', 'like', "%{$search}%")
+                )
             );
         }
 

@@ -1,6 +1,6 @@
 // E-Asrama — Service Worker
 // Versi cache: ubah string ini untuk memaksa update cache saat deploy
-const CACHE_VERSION = 'eizin-v1';
+const CACHE_VERSION = 'eizin-v2';
 
 // Aset statis yang akan di-cache saat install
 const STATIC_ASSETS = [
