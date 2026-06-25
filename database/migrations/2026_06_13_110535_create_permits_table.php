@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('permits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['pesiar', 'bermalam']);
+            $table->string('type'); // pesiar, bermalam_biasa, bermalam_urgensi
             $table->string('destination');
             $table->text('reason')->nullable();
             $table->timestamp('start_time')->nullable();
