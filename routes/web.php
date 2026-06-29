@@ -9,6 +9,7 @@ use App\Http\Controllers\Student\PrayerController as StudentPrayerController;
 use App\Http\Controllers\Admin\PermitController as AdminPermitController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\PrayerMonitoringController as AdminPrayerMonitoringController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -45,4 +46,8 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     
     // Rute Monitoring Absen Shalat
     Route::get('/sholat', [AdminPrayerMonitoringController::class, 'index'])->name('sholat.index');
+
+    // Rute Pengaturan Profil Admin
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 });
