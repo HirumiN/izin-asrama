@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Permit;
 use Carbon\Carbon;
+use Carbon\Constants\UnitValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -86,7 +87,7 @@ class PermitController extends Controller
             $permit->end_time = Carbon::parse($request->end_time)->setTime(6, 30, 0);
         } elseif ($request->type === 'bermalam_biasa') {
             // Otomatis menetapkan Senin terdekat pukul 06:30 WIB
-            $permit->end_time = Carbon::parse($request->start_time)->next(Carbon::MONDAY)->setTime(6, 30, 0);
+            $permit->end_time = Carbon::parse($request->start_time)->next(UnitValue::MONDAY)->setTime(6, 30, 0);
         }
 
         $permit->status = 'pending';

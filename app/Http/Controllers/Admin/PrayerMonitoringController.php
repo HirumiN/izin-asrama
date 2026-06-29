@@ -38,7 +38,7 @@ class PrayerMonitoringController extends Controller
         // FIX N+1: Satu query GROUP BY untuk semua statistik
         // Sebelumnya: 4 COUNT query × 5 waktu shalat = 20 query terpisah
         // Sekarang: 1 query aggregate GROUP BY prayer_time + status
-        $statsRaw = PrayerAttendance::whereDate('date', $selectedDate)
+        $statsRaw = PrayerAttendance::query()->whereDate('date', $selectedDate)
             ->selectRaw('prayer_time, status, COUNT(*) as total')
             ->groupBy('prayer_time', 'status')
             ->get()
