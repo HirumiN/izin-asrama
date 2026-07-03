@@ -542,6 +542,23 @@
 
 <script>
     let webcamStream = null;
+    let isWithinRange = false;
+
+    // Menghitung jarak antara dua koordinat menggunakan rumus Haversine (dalam meter).
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371000; // Radius bumi dalam meter
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Jarak dalam meter
+    }
+
+    const PRODITA_LAT = -8.0967762;
+    const PRODITA_LNG = 112.1791154;
+    const ALLOWED_RADIUS = 200; // meter
 
     function openReturnModal() {
         const modal = document.getElementById('return-modal');
@@ -563,6 +580,10 @@
         const cameraLoading = document.getElementById('camera-loading');
         const btnCapture = document.getElementById('btn-capture');
 
+        // Reset status & disable capture button at start
+        isWithinRange = false;
+        btnCapture.setAttribute('disabled', 'true');
+
         navigator.mediaDevices.getUserMedia({ 
             video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
             audio: false 
@@ -571,7 +592,9 @@
             webcamStream = stream;
             video.srcObject = stream;
             cameraLoading.classList.add('hidden');
-            btnCapture.removeAttribute('disabled');
+            if (isWithinRange) {
+                btnCapture.removeAttribute('disabled');
+            }
         })
         .catch(err => {
             console.error('Kamera gagal dimuat:', err);
@@ -593,38 +616,59 @@
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const lat = position.coords.latitude.toFixed(6);
-                    const lng = position.coords.longitude.toFixed(6);
-                    inputLocation.value = `Lat: ${lat}, Lng: ${lng}`;
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const distance = getDistance(PRODITA_LAT, PRODITA_LNG, lat, lng);
+                    const latStr = lat.toFixed(6);
+                    const lngStr = lng.toFixed(6);
 
-                    gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
-                    gpsStatus.classList.add('bg-emerald-50', 'border-emerald-100', 'text-emerald-800');
-                    gpsStatus.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-emerald-600 shrink-0">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                        <span class="text-xs">GPS Terdeteksi: Lat: ${lat}, Lng: ${lng}</span>
-                    `;
+                    inputLocation.value = `Lat: ${latStr}, Lng: ${lngStr}`;
+
+                    if (distance <= ALLOWED_RADIUS) {
+                        isWithinRange = true;
+                        gpsStatus.className = "p-3 rounded-xl border flex items-center gap-2.5 text-sm font-semibold transition duration-150 bg-emerald-50 border-emerald-100 text-emerald-800";
+                        gpsStatus.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-emerald-600 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            <span class="text-xs">Lokasi terverifikasi di area asrama (jarak: ${Math.round(distance)} m)</span>
+                        `;
+                        if (webcamStream) {
+                            btnCapture.removeAttribute('disabled');
+                        }
+                    } else {
+                        isWithinRange = false;
+                        gpsStatus.className = "p-3 rounded-xl border flex items-center gap-2.5 text-sm font-semibold transition duration-150 bg-rose-50 border-rose-100 text-rose-800";
+                        gpsStatus.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-rose-600 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            <span class="text-xs">Anda di luar area asrama (jarak: ${Math.round(distance)} m). Pelaporan hanya diperbolehkan di area PRODITA.</span>
+                        `;
+                        btnCapture.setAttribute('disabled', 'true');
+                    }
                 },
                 (error) => {
                     console.error('GPS gagal:', error);
+                    isWithinRange = false;
                     inputLocation.value = 'GPS Tidak Diizinkan / Mati';
-                    gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
-                    gpsStatus.classList.add('bg-rose-50', 'border-rose-100', 'text-rose-800');
+                    gpsStatus.className = "p-3 rounded-xl border flex items-center gap-2.5 text-sm font-semibold transition duration-150 bg-rose-50 border-rose-100 text-rose-800";
                     gpsStatus.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-rose-600 shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
-                        <span class="text-xs">GPS Mati / Izin Ditolak</span>
+                        <span class="text-xs">GPS Mati / Izin Ditolak. Harap aktifkan GPS untuk lapor.</span>
                     `;
+                    btnCapture.setAttribute('disabled', 'true');
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
             );
         } else {
+            isWithinRange = false;
             inputLocation.value = 'GPS Tidak Didukung Browser';
-            gpsStatus.classList.remove('bg-amber-50', 'border-amber-100', 'text-amber-800');
-            gpsStatus.classList.add('bg-rose-50', 'border-rose-100', 'text-rose-850');
+            gpsStatus.className = "p-3 rounded-xl border flex items-center gap-2.5 text-sm font-semibold transition duration-150 bg-rose-50 border-rose-100 text-rose-850";
             gpsStatus.innerHTML = `<span class="text-xs">Geolocation Tidak Didukung</span>`;
+            btnCapture.setAttribute('disabled', 'true');
         }
     }
 
@@ -748,7 +792,9 @@
             webcamStream = stream;
             video.srcObject = stream;
             cameraLoading.classList.add('hidden');
-            btnCapture.removeAttribute('disabled');
+            if (isWithinRange) {
+                btnCapture.removeAttribute('disabled');
+            }
         })
         .catch(err => {
             console.error('Kamera gagal dimuat saat retake:', err);

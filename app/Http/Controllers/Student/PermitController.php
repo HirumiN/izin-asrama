@@ -12,6 +12,31 @@ use Illuminate\Support\Facades\Storage;
 
 class PermitController extends Controller
 {
+    const PRODITA_LAT = -8.0967762;
+    const PRODITA_LNG = 112.1791154;
+    const ALLOWED_RADIUS_METERS = 200;
+
+    /**
+     * Menghitung jarak antara dua koordinat menggunakan rumus Haversine (dalam meter).
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // Jari-jari bumi dalam meter
+
+        $latFrom = deg2rad($lat1);
+        $lonFrom = deg2rad($lon1);
+        $latTo = deg2rad($lat2);
+        $lonTo = deg2rad($lon2);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+
+        return $angle * $earthRadius;
+    }
+
     public function index()
     {
         $student = Auth::user()->student;
@@ -115,6 +140,20 @@ class PermitController extends Controller
             'return_photo.required' => 'Foto bukti pulang wajib diambil.',
             'return_location.required' => 'Lokasi GPS wajib diizinkan.',
         ]);
+
+        // Validasi Geofencing
+        $location = $request->input('return_location');
+        if (preg_match('/Lat:\s*([-\d.]+),\s*Lng:\s*([-\d.]+)/i', $location, $matches)) {
+            $lat = (float) $matches[1];
+            $lng = (float) $matches[2];
+
+            $distance = $this->calculateDistance(self::PRODITA_LAT, self::PRODITA_LNG, $lat, $lng);
+            if ($distance > self::ALLOWED_RADIUS_METERS) {
+                return back()->with('error', 'Gagal melaporkan kepulangan: Lokasi Anda terdeteksi di luar area asrama PRODITA (jarak: ' . round($distance) . ' meter, maksimum: ' . self::ALLOWED_RADIUS_METERS . ' meter).');
+            }
+        } else {
+            return back()->with('error', 'Gagal melaporkan kepulangan: Koordinat GPS tidak valid atau harus diizinkan.');
+        }
 
         try {
             $photoData = $request->input('return_photo');

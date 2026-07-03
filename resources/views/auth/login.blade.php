@@ -87,20 +87,7 @@
             </div>
         </form>
 
-        <!-- Akun Demo Box -->
-        <div class="mt-8 pt-6 border-t border-slate-200">
-            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Akun Demo Default</h3>
-            <div class="space-y-2 text-xs text-slate-600 font-medium">
-                <div class="flex justify-between p-2 bg-slate-50/80 rounded-lg border border-slate-200/80 shadow-sm">
-                    <span><strong>Pengelola:</strong> admin@asrama.com</span>
-                    <span class="text-blue-600">Sandi: password</span>
-                </div>
-                <div class="flex justify-between p-2 bg-slate-50/80 rounded-lg border border-slate-200/80 shadow-sm">
-                    <span><strong>Mahasiswa:</strong> P17230251001</span>
-                    <span class="text-blue-600">Sandi: password</span>
-                </div>
-            </div>
-        </div>
+
 
     </div>
 </div>

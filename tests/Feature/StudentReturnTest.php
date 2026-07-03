@@ -38,7 +38,7 @@ class StudentReturnTest extends TestCase
 
         $response = $this->actingAs($studentUser)->post(route('student.permits.return', $permit), [
             'return_photo' => $base64Photo,
-            'return_location' => 'Lat: -6.200000, Lng: 106.816666',
+            'return_location' => 'Lat: -8.096776, Lng: 112.179115',
         ]);
 
         $response->assertRedirect(route('student.dashboard'));
@@ -47,7 +47,7 @@ class StudentReturnTest extends TestCase
         $permit->refresh();
         $this->assertEquals('returned_on_time', $permit->status);
         $this->assertNotNull($permit->return_photo);
-        $this->assertEquals('Lat: -6.200000, Lng: 106.816666', $permit->return_location);
+        $this->assertEquals('Lat: -8.096776, Lng: 112.179115', $permit->return_location);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
         $disk = Storage::disk('public');
         $disk->assertExists($permit->return_photo);
@@ -73,7 +73,7 @@ class StudentReturnTest extends TestCase
 
         $response = $this->actingAs($studentUser)->post(route('student.permits.return', $permit), [
             'return_photo' => $base64Photo,
-            'return_location' => 'Lat: -6.200000, Lng: 106.816666',
+            'return_location' => 'Lat: -8.096776, Lng: 112.179115',
         ]);
 
         $response->assertRedirect(route('student.dashboard'));
@@ -106,7 +106,7 @@ class StudentReturnTest extends TestCase
 
         $this->actingAs($studentUser)->post(route('student.permits.return', $permit), [
             'return_photo' => $base64Photo,
-            'return_location' => 'Lat: -6.200000, Lng: 106.816666',
+            'return_location' => 'Lat: -8.096776, Lng: 112.179115',
         ]);
 
         $student->refresh();
@@ -177,7 +177,7 @@ class StudentReturnTest extends TestCase
 
         $response = $this->actingAs($studentUser2)->post(route('student.permits.return', $permit), [
             'return_photo' => $base64Photo,
-            'return_location' => 'Lat: -6.200000, Lng: 106.816666',
+            'return_location' => 'Lat: -8.096776, Lng: 112.179115',
         ]);
 
         $response->assertSessionHas('error', 'Akses ditolak.');
@@ -257,5 +257,34 @@ class StudentReturnTest extends TestCase
                 'admin_note' => 'Bawa struk pembelian obat.',
             ]
         ]);
+    }
+
+    public function test_student_cannot_report_return_outside_allowed_range()
+    {
+        $studentUser = User::factory()->create(['name' => 'Budi', 'role' => 'mahasiswa']);
+        $student = $studentUser->student()->create(['nim' => 'NIM001', 'dorm_room' => 'A-101']);
+
+        $permit = Permit::create([
+            'student_id' => $student->id,
+            'type' => 'pesiar',
+            'destination' => 'Toko Buku',
+            'start_time' => Carbon::now()->subHours(2),
+            'end_time' => Carbon::now()->addHours(2),
+            'status' => 'approved',
+        ]);
+
+        $base64Photo = 'data:image/jpeg;base64,' . base64_encode('fake image content');
+
+        // Koordinat Jakarta (-6.200000, 106.816666) berada jauh di luar radius 200m dari PRODITA Blitar
+        $response = $this->actingAs($studentUser)->post(route('student.permits.return', $permit), [
+            'return_photo' => $base64Photo,
+            'return_location' => 'Lat: -6.200000, Lng: 106.816666',
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertStringContainsString('di luar area asrama PRODITA', session('error'));
+
+        $permit->refresh();
+        $this->assertEquals('approved', $permit->status); // Status tetap approved, tidak berubah
     }
 }
