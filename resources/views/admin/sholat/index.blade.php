@@ -4,6 +4,38 @@
 @section('page_title', 'Monitoring Absen Shalat')
 
 @section('content')
+<style>
+    .prayer-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+    .search-form-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    @media (max-width: 1024px) {
+        .prayer-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+    @media (max-width: 768px) {
+        .prayer-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .search-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    @media (max-width: 640px) {
+        .prayer-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <div class="space-y-8 max-w-7xl mx-auto">
     <!-- Ringkasan Statistik -->
     <div class="space-y-4">
@@ -17,10 +49,10 @@
             </h2>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div class="prayer-grid">
             @php
                 $prayerIcons = [
-                    'subuh' => '<svg xmlns="http://www.w3.org/2500/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-indigo-550 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m.386-6.364 1.591 1.591M12 18.75a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5Z" /></svg>',
+                    'subuh' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-indigo-550 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m.386-6.364 1.591 1.591M12 18.75a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5Z" /></svg>',
                     'dzuhur' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-amber-550 text-amber-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m.386-6.364 1.591 1.591M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" /></svg>',
                     'ashar' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-sky-550 text-sky-500"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" /></svg>',
                     'maghrib' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-550 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m.386-6.364 1.591 1.591M12 18.75a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5Z" /></svg>',
@@ -108,9 +140,9 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.sholat.index') }}" method="GET" class="flex flex-col md:flex-row items-end gap-4">
+        <form action="{{ route('admin.sholat.index') }}" method="GET" class="search-form-grid">
             <!-- Cari Mahasiswa Input -->
-            <div class="flex-1 w-full">
+            <div class="w-full">
                 <label for="search" class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Cari Mahasiswa</label>
                 <div class="relative group">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 group-focus-within:text-blue-500 transition-colors">
@@ -125,16 +157,16 @@
             </div>
 
             <!-- Pilih Tanggal Input -->
-            <div class="w-full md:w-64">
+            <div class="w-full">
                 <label for="date" class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Tanggal Pemantauan</label>
                 <input type="date" name="date" id="date" value="{{ $selectedDate }}"
                     class="w-full px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-150 focus:border-blue-600 transition-all text-sm shadow-sm font-medium">
             </div>
 
             <!-- Buttons -->
-            <div class="flex gap-2 w-full md:w-auto">
+            <div class="flex gap-2 w-full">
                 <button type="submit"
-                    class="flex-1 md:flex-initial py-2.5 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition-all duration-150 transform active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer">
+                    class="flex-1 py-2.5 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition-all duration-150 transform active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
                     </svg>
