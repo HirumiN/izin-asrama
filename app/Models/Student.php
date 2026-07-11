@@ -31,6 +31,11 @@ class Student extends Model
         return $this->hasMany(PrayerAttendance::class);
     }
 
+    public function activityAttendances(): HasMany
+    {
+        return $this->hasMany(ActivityAttendance::class);
+    }
+
     /**
      * Cek apakah mahasiswa sedang ditangguhkan.
      */

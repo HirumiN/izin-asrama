@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PermitController as AdminPermitController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\PrayerMonitoringController as AdminPrayerMonitoringController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ActivityController;
 
 Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -30,6 +31,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     // Rute Absen Shalat
     Route::get('/sholat', [StudentPrayerController::class, 'index'])->name('sholat.index');
     Route::post('/sholat', [StudentPrayerController::class, 'store'])->name('sholat.store');
+
+    // Rute Absen Kegiatan Kustom Mandiri
+    Route::get('/activities', [StudentPermitController::class, 'activityIndex'])->name('activities.index');
+    Route::post('/activities/{activity}/attendance', [StudentPermitController::class, 'storeActivityAttendance'])->name('activities.attendance');
 });
 
 // Group Rute Pengelola/Admin (Grup Auth & Role Pengelola)
@@ -46,6 +51,13 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     
     // Rute Monitoring Absen Shalat
     Route::get('/sholat', [AdminPrayerMonitoringController::class, 'index'])->name('sholat.index');
+
+    // Rute Kegiatan Kustom (Custom Absen)
+    Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('/activities/create', [ActivityController::class, 'create'])->name('activities.create');
+    Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
+    // Monitoring kehadiran (read-only) — mahasiswa absen mandiri dari akun masing-masing
+    Route::get('/activities/{activity}/attendance', [ActivityController::class, 'showAttendance'])->name('activities.attendance.show');
 
     // Rute Pengaturan Profil Admin
     Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');

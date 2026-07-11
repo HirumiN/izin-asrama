@@ -62,7 +62,99 @@ class PermitController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('student.dashboard', compact('student', 'activePermit', 'pendingPermit', 'historyPermits'));
+        // Mengambil riwayat absensi kegiatan kustom mahasiswa
+        $activityAttendances = $student->activityAttendances()
+            ->with('activity')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Mengambil kegiatan hari ini
+        $todayActivities = \App\Models\Activity::whereDate('date', today())->get();
+        $todayAttendances = $student->activityAttendances()
+            ->whereIn('activity_id', $todayActivities->pluck('id'))
+            ->get()
+            ->keyBy('activity_id');
+
+        return view('student.dashboard', compact(
+            'student', 
+            'activePermit', 
+            'pendingPermit', 
+            'historyPermits', 
+            'activityAttendances',
+            'todayActivities',
+            'todayAttendances'
+        ));
+    }
+
+    /**
+     * Halaman daftar kegiatan kustom mahasiswa:
+     * menampilkan kegiatan hari ini & riwayat absensi.
+     */
+    public function activityIndex()
+    {
+        $student = Auth::user()->student;
+
+        if (!$student) {
+            return redirect()->route('login')->withErrors(['email' => 'Profil mahasiswa tidak ditemukan.']);
+        }
+
+        // Kegiatan hari ini beserta status kehadiran mahasiswa
+        $todayActivities = \App\Models\Activity::whereDate('date', today())->get();
+        $todayAttendances = $student->activityAttendances()
+            ->whereIn('activity_id', $todayActivities->pluck('id'))
+            ->get()
+            ->keyBy('activity_id');
+
+        // Riwayat absensi kegiatan (sebelum hari ini)
+        $historyAttendances = $student->activityAttendances()
+            ->with('activity')
+            ->whereHas('activity', fn($q) => $q->whereDate('date', '<', today()))
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return view('student.activities.index', compact(
+            'student',
+            'todayActivities',
+            'todayAttendances',
+            'historyAttendances'
+        ));
+    }
+
+    /**
+     * Catat absensi mandiri mahasiswa untuk kegiatan kustom tertentu.
+     */
+    public function storeActivityAttendance(Request $request, \App\Models\Activity $activity)
+    {
+        $student = Auth::user()->student;
+
+        if (!$student) {
+            return back()->with('error', 'Profil mahasiswa tidak ditemukan.');
+        }
+
+        // Validasi tanggal kegiatan harus hari ini
+        if (!$activity->date->isToday()) {
+            return back()->with('error', 'Waktu absensi untuk kegiatan ini telah berakhir atau belum dimulai.');
+        }
+
+        // Validasi waktu saat ini berada di antara start_time dan end_time
+        $now = Carbon::now();
+        $startTime = Carbon::parse($activity->start_time);
+        $endTime = Carbon::parse($activity->end_time);
+
+        if ($now->lessThan($startTime) || $now->greaterThan($endTime)) {
+            return back()->with('error', 'Waktu absensi untuk kegiatan ini telah berakhir atau belum dimulai.');
+        }
+
+        // Buat atau update absensi sebagai hadir
+        $student->activityAttendances()->updateOrCreate(
+            ['activity_id' => $activity->id],
+            [
+                'status' => 'hadir',
+                'notes' => 'Absen Mandiri',
+            ]
+        );
+
+        return redirect()->route('student.dashboard')->with('success', 'Absensi kegiatan berhasil direkam.');
     }
 
     public function store(Request $request)

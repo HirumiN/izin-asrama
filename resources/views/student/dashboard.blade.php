@@ -5,6 +5,23 @@
 
 @section('content')
 <div class="space-y-8">
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-2xl flex items-center gap-3 text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-emerald-600 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="p-4 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl flex items-center gap-3 text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-600 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            {{ session('error') }}
+        </div>
+    @endif
 
     <!-- Konten Utama: Pengajuan & Status Izin Aktif -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -371,6 +388,97 @@
 
         <!-- Kolom Kanan: Panduan Aturan Kedisiplinan -->
         <div class="space-y-6">
+            <!-- Kegiatan Hari Ini -->
+            <div class="p-6 glass-card border-blue-150/60 space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                    Kegiatan Hari Ini
+                </h3>
+
+                @if($todayActivities->isEmpty())
+                    <p class="text-xs text-slate-500 font-medium">Tidak ada kegiatan terjadwal hari ini.</p>
+                @else
+                    <div class="space-y-4 divide-y divide-slate-100">
+                        @foreach($todayActivities as $activity)
+                            @php
+                                $attendance = $todayAttendances->get($activity->id);
+                                $now = \Carbon\Carbon::now();
+                                $startTime = \Carbon\Carbon::parse($activity->start_time);
+                                $endTime = \Carbon\Carbon::parse($activity->end_time);
+                                $isOpen = $now->between($startTime, $endTime);
+                                $isPast = $now->greaterThan($endTime);
+                                $isFuture = $now->lessThan($startTime);
+                            @endphp
+                            <div class="pt-3 first:pt-0 space-y-2.5">
+                                <div class="flex justify-between items-start">
+                                    <div class="pr-2">
+                                        <h4 class="text-xs font-bold text-slate-800 break-words leading-tight">{{ $activity->name }}</h4>
+                                        <p class="text-[10px] text-slate-400 font-medium mt-0.5">
+                                            Batas Absen: {{ $startTime->format('H:i') }} - {{ $endTime->format('H:i') }}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="shrink-0">
+                                        @if($attendance)
+                                            @if($attendance->status === 'hadir')
+                                                <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                    Hadir
+                                                </span>
+                                            @elseif($attendance->status === 'sakit')
+                                                <span class="px-2 py-0.5 bg-amber-50 border border-amber-100 text-amber-700 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                    Sakit
+                                                </span>
+                                            @elseif($attendance->status === 'izin')
+                                                <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                    Izin
+                                                </span>
+                                            @elseif($attendance->status === 'alpa')
+                                                <span class="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                    Alpa
+                                                </span>
+                                            @endif
+                                        @elseif($isPast)
+                                            <span class="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                Ditutup
+                                            </span>
+                                        @elseif($isFuture)
+                                            <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                Belum Buka
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-0.5 bg-blue-50 border border-blue-100 text-blue-700 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                                                Buka
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if(!$attendance)
+                                    @if($isOpen)
+                                        <form action="{{ route('student.activities.attendance', $activity->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" 
+                                                class="w-full py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold shadow-sm transition transform active:scale-[0.98] text-center cursor-pointer">
+                                                Absen Hadir Mandiri
+                                            </button>
+                                        </form>
+                                    @elseif($isPast)
+                                        <p class="text-[9px] text-rose-600 font-semibold italic">* Terlambat, absensi mandiri ditutup.</p>
+                                    @elseif($isFuture)
+                                        <button disabled 
+                                            class="w-full py-1.5 px-3 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-[10px] font-bold cursor-not-allowed text-center">
+                                            Belum Dimulai
+                                        </button>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             <div class="p-6 glass-card border-blue-100/80 space-y-4">
                 <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
@@ -460,6 +568,64 @@
                                             Ditolak
                                         </span>
                                     @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    <!-- Tabel Riwayat Absensi Kegiatan Kustom -->
+    <div class="p-6 glass-card">
+        <h3 class="text-lg font-bold text-slate-900 mb-4">Riwayat Absensi Kegiatan Asrama</h3>
+        
+        @if($activityAttendances->isEmpty())
+            <div class="text-center py-8 text-slate-400 text-sm font-medium">
+                Belum ada catatan absensi kegiatan.
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-650">
+                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                        <tr>
+                            <th class="px-6 py-3">Nama Kegiatan</th>
+                            <th class="px-6 py-3">Tanggal</th>
+                            <th class="px-6 py-3">Status Kehadiran</th>
+                            <th class="px-6 py-3">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200/80 font-medium">
+                        @foreach($activityAttendances as $att)
+                            <tr class="hover:bg-slate-50/50 transition duration-150">
+                                <td class="px-6 py-4 font-bold text-slate-800">
+                                    {{ $att->activity->name }}
+                                </td>
+                                <td class="px-6 py-4 text-slate-600 font-semibold">
+                                    {{ \Carbon\Carbon::parse($att->activity->date)->translatedFormat('d F Y') }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($att->status === 'hadir')
+                                        <span class="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-[11px] font-bold uppercase">
+                                            Hadir
+                                        </span>
+                                    @elseif($att->status === 'sakit')
+                                        <span class="px-2.5 py-1 bg-amber-50 border border-amber-100 text-amber-700 rounded-md text-[11px] font-bold uppercase">
+                                            Sakit
+                                        </span>
+                                    @elseif($att->status === 'izin')
+                                        <span class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-md text-[11px] font-bold uppercase">
+                                            Izin
+                                        </span>
+                                    @elseif($att->status === 'alpa')
+                                        <span class="px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-md text-[11px] font-bold uppercase">
+                                            Alpa
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-slate-500 italic text-xs">
+                                    {{ $att->notes ?? '-' }}
                                 </td>
                             </tr>
                         @endforeach

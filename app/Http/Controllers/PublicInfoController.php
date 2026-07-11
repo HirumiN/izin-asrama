@@ -13,6 +13,7 @@ class PublicInfoController extends Controller
         $historyPermits = null;
         $maskedName = null;
         $activePermit = null;
+        $activityAttendances = null;
 
         if ($request->filled('nim')) {
             // Validasi: NIM hanya boleh alfanumerik, maks 50 karakter
@@ -32,12 +33,18 @@ class PublicInfoController extends Controller
 
                 $historyPermits = $student->permits()
                     ->orderBy('created_at', 'desc')
-                    ->paginate(10)
+                    ->paginate(10, ['*'], 'permit_page')
+                    ->withQueryString();
+
+                $activityAttendances = $student->activityAttendances()
+                    ->with('activity')
+                    ->orderByDesc('created_at')
+                    ->paginate(10, ['*'], 'activity_page')
                     ->withQueryString();
             }
         }
 
-        return view('public.student-info', compact('student', 'historyPermits', 'maskedName', 'activePermit'));
+        return view('public.student-info', compact('student', 'historyPermits', 'maskedName', 'activePermit', 'activityAttendances'));
     }
 
     private function maskName($name)
