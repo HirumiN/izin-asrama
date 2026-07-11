@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\PrayerMonitoringController as AdminPrayerMonitoringController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ActivityController;
+use App\Http\Controllers\Student\PasswordController as StudentPasswordController;
 
 Route::get('/', [AuthController::class, 'showLogin']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -35,6 +36,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     // Rute Absen Kegiatan Kustom Mandiri
     Route::get('/activities', [StudentPermitController::class, 'activityIndex'])->name('activities.index');
     Route::post('/activities/{activity}/attendance', [StudentPermitController::class, 'storeActivityAttendance'])->name('activities.attendance');
+
+    // Rute Ganti Password
+    Route::get('/password', [StudentPasswordController::class, 'edit'])->name('password.edit');
+    Route::post('/password', [StudentPasswordController::class, 'update'])->name('password.update');
 });
 
 // Group Rute Pengelola/Admin (Grup Auth & Role Pengelola)
