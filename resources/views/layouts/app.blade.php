@@ -387,8 +387,8 @@
     </script>
     
     @else
-    <!-- Layout untuk Tamu (Halaman Login) -->
-    <main class="flex-1 flex items-center justify-center p-4">
+    <!-- Layout untuk Tamu -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
         @yield('content')
     </main>
     @endauth

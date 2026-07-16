@@ -53,7 +53,7 @@
                         $attendance = $todayAttendances->get($activity->id);
                     @endphp
 
-                    <div class="px-5 py-4 flex items-center justify-between gap-4 {{ $attendance ? 'bg-emerald-50/50' : ($isOpen ? 'bg-blue-50/40' : '') }}">
+                    <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 {{ $attendance ? 'bg-emerald-50/50' : ($isOpen ? 'bg-blue-50/40' : '') }}">
                         <!-- Kiri: Info -->
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -106,7 +106,7 @@
                         </div>
 
                         <!-- Kanan: Aksi -->
-                        <div class="shrink-0">
+                        <div class="shrink-0 w-full sm:w-auto flex justify-end">
                             @if($attendance)
                                 <div class="w-9 h-9 rounded-full bg-emerald-100 border-2 border-emerald-300 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-emerald-600">
@@ -115,16 +115,17 @@
                                 </div>
                             @elseif($isOpen)
                                 <form action="{{ route('student.activities.attendance', $activity->id) }}" method="POST"
+                                      class="w-full sm:w-auto"
                                       onsubmit="return confirm('Konfirmasi absensi untuk: {{ addslashes($activity->name) }}?')">
                                     @csrf
                                     <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition duration-150 active:scale-95 cursor-pointer">
+                                        class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition duration-150 active:scale-95 cursor-pointer text-center">
                                         Absen Sekarang
                                     </button>
                                 </form>
                             @else
                                 <button disabled
-                                    class="px-4 py-2 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed border border-slate-200">
+                                    class="w-full sm:w-auto px-4 py-2 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed border border-slate-200 text-center">
                                     {{ $isUpcoming ? 'Belum Buka' : 'Tutup' }}
                                 </button>
                             @endif
@@ -150,9 +151,9 @@
                 <p class="text-sm font-semibold text-slate-400">Belum ada riwayat absensi kegiatan.</p>
             </div>
         @else
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto scrollbar-thin">
                 <table class="w-full text-sm text-left">
-                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold whitespace-nowrap">
                         <tr>
                             <th class="px-5 py-3.5">Nama Kegiatan</th>
                             <th class="px-5 py-3.5">Tanggal</th>
@@ -163,22 +164,22 @@
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @foreach($historyAttendances as $rec)
                             <tr class="hover:bg-slate-50/40 transition duration-150">
-                                <td class="px-5 py-3.5 font-bold text-slate-800">{{ $rec->activity->name }}</td>
-                                <td class="px-5 py-3.5 text-xs text-slate-500">
+                                <td class="px-5 py-3.5 font-bold text-slate-800 min-w-[150px]">{{ $rec->activity->name }}</td>
+                                <td class="px-5 py-3.5 text-xs text-slate-500 whitespace-nowrap">
                                     {{ $rec->activity->date->translatedFormat('d F Y') }}
                                 </td>
-                                <td class="px-5 py-3.5">
+                                <td class="px-5 py-3.5 whitespace-nowrap">
                                     @if($rec->status === 'hadir')
-                                        <span class="inline-flex px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-lg text-[11px] font-bold uppercase tracking-wider">Hadir</span>
+                                        <span class="inline-flex px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Hadir</span>
                                     @elseif($rec->status === 'sakit')
-                                        <span class="inline-flex px-2.5 py-1 bg-amber-50 border border-amber-100 text-amber-700 rounded-lg text-[11px] font-bold uppercase tracking-wider">Sakit</span>
+                                        <span class="inline-flex px-2.5 py-1 bg-amber-50 border border-amber-100 text-amber-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Sakit</span>
                                     @elseif($rec->status === 'izin')
-                                        <span class="inline-flex px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-[11px] font-bold uppercase tracking-wider">Izin</span>
+                                        <span class="inline-flex px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">Izin</span>
                                     @elseif($rec->status === 'alpa')
-                                        <span class="inline-flex px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-lg text-[11px] font-bold uppercase tracking-wider">Alpa</span>
+                                        <span class="inline-flex px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Alpa</span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-3.5 text-xs text-slate-500">{{ $rec->notes ?? '—' }}</td>
+                                <td class="px-5 py-3.5 text-xs text-slate-500 min-w-[120px]">{{ $rec->notes ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -3,15 +3,15 @@
 @section('title', 'Informasi Mahasiswa')
 
 @section('content')
-<div class="space-y-8 max-w-5xl mx-auto">
+<div class="space-y-6 sm:space-y-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-0">
     
     <div class="text-center space-y-2">
-        <h1 class="text-3xl font-extrabold text-slate-800">Cek Aktivitas Mahasiswa</h1>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Cek Aktivitas Mahasiswa</h1>
         <p class="text-slate-500 text-sm font-medium">Masukkan Nomor Induk Mahasiswa (NIM) untuk melihat riwayat izin dan absensi kegiatan.</p>
     </div>
 
     <!-- Form Pencarian -->
-    <div class="p-8 glass-card glow-blue w-full max-w-2xl mx-auto">
+    <div class="p-5 sm:p-8 glass-card glow-blue w-full max-w-2xl mx-auto">
         <form action="{{ route('public.student-info') }}" method="GET" class="flex flex-col sm:flex-row gap-4">
             <div class="flex-1">
                 <label for="nim" class="sr-only">NIM Mahasiswa</label>
@@ -30,23 +30,24 @@
     @if(request()->filled('nim'))
         @if($student)
             <!-- Info Profil Singkat -->
-            <div class="p-6 glass-card border-blue-200/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="p-4 bg-blue-50 border border-blue-100 rounded-full text-blue-600">
+            <div class="p-5 sm:p-6 glass-card border-blue-200/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                    <div class="p-4 bg-blue-50 border border-blue-100 rounded-full text-blue-600 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                     </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900 uppercase">{{ $maskedName }}</h2>
-                        <div class="text-sm font-medium text-slate-500 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <div class="space-y-1">
+                        <h2 class="text-xl font-bold text-slate-900 uppercase tracking-wide">{{ $maskedName }}</h2>
+                        <div class="text-sm font-medium text-slate-500 flex flex-col sm:flex-row items-center gap-x-3 gap-y-0.5">
                             <span>NIM: <strong class="text-slate-700">{{ $student->nim }}</strong></span>
+                            <span class="hidden sm:inline text-slate-300">•</span>
                             <span>Kamar: <strong class="text-slate-700">{{ $student->dorm_room }}</strong></span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row gap-2">
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto justify-center md:justify-end">
                     @if($activePermit)
                         <span class="px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-sm">
                             <span class="relative flex h-2 w-2">
@@ -73,28 +74,28 @@
             <!-- Tab Navigation -->
             <div class="glass-card border-slate-200/80 shadow-sm overflow-hidden">
                 <!-- Tab Bar -->
-                <div class="flex border-b border-slate-200 bg-slate-50/60">
+                <div class="flex border-b border-slate-200 bg-slate-50/60 w-full">
                     <button type="button" id="tab-btn-permit"
                         onclick="switchTab('permit')"
-                        class="flex items-center gap-2 px-6 py-3.5 text-sm font-bold border-b-2 transition duration-150 tab-active"
+                        class="flex items-center justify-center gap-2 px-3 sm:px-6 py-3.5 text-xs sm:text-sm font-bold border-b-2 transition duration-150 flex-1 sm:flex-initial tab-active"
                         data-tab="permit">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l-3-3m3 3h7.5" />
                         </svg>
-                        Izin Keluar / Masuk
-                        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-md">
+                        <span class="truncate">Izin Keluar/Masuk</span>
+                        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-md shrink-0">
                             {{ $historyPermits->total() }}
                         </span>
                     </button>
                     <button type="button" id="tab-btn-activity"
                         onclick="switchTab('activity')"
-                        class="flex items-center gap-2 px-6 py-3.5 text-sm font-bold border-b-2 transition duration-150 tab-inactive"
+                        class="flex items-center justify-center gap-2 px-3 sm:px-6 py-3.5 text-xs sm:text-sm font-bold border-b-2 transition duration-150 flex-1 sm:flex-initial tab-inactive"
                         data-tab="activity">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
                         </svg>
-                        Absen Kegiatan
-                        <span class="px-1.5 py-0.5 bg-slate-200 text-slate-600 text-[10px] font-bold rounded-md" id="activity-count-badge">
+                        <span class="truncate">Absen Kegiatan</span>
+                        <span class="px-1.5 py-0.5 bg-slate-200 text-slate-600 text-[10px] font-bold rounded-md shrink-0" id="activity-count-badge">
                             {{ $activityAttendances->total() }}
                         </span>
                     </button>
@@ -107,9 +108,9 @@
                             Belum ada riwayat pengajuan izin sebelumnya.
                         </div>
                     @else
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto scrollbar-thin">
                             <table class="w-full text-sm text-left text-slate-650">
-                                <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                                <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold whitespace-nowrap">
                                     <tr>
                                         <th class="px-6 py-3.5">Jenis Izin</th>
                                         <th class="px-6 py-3.5">Tujuan</th>
@@ -121,14 +122,14 @@
                                 <tbody class="divide-y divide-slate-200/80 font-medium">
                                     @foreach($historyPermits as $history)
                                         <tr class="hover:bg-slate-50/50 transition duration-150">
-                                            <td class="px-6 py-4 font-bold text-slate-800 capitalize">
+                                            <td class="px-6 py-4 font-bold text-slate-800 capitalize whitespace-nowrap">
                                                 {{ str_replace('_', ' ', $history->type) }}
                                             </td>
-                                            <td class="px-6 py-4 text-slate-700">{{ $history->destination }}</td>
-                                            <td class="px-6 py-4 text-slate-600 text-xs">
+                                            <td class="px-6 py-4 text-slate-700 min-w-[150px]">{{ $history->destination }}</td>
+                                            <td class="px-6 py-4 text-slate-600 text-xs whitespace-nowrap">
                                                 {{ $history->start_time->format('d/m/Y, H:i') }}
                                             </td>
-                                            <td class="px-6 py-4 text-slate-600 text-xs">
+                                            <td class="px-6 py-4 text-slate-600 text-xs whitespace-nowrap">
                                                 @if($history->status === 'returned_on_time' || $history->status === 'returned_late')
                                                     {{ $history->actual_return_time ? $history->actual_return_time->format('d/m/Y, H:i') : '-' }}
                                                 @elseif($history->status === 'approved')
@@ -137,17 +138,17 @@
                                                     <span class="text-slate-400">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4">
+                                            <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($history->status === 'approved')
-                                                    <span class="px-2 py-1 bg-blue-50 border border-blue-100 text-blue-700 rounded-md text-[11px] font-bold uppercase">Aktif Keluar</span>
+                                                    <span class="px-2.5 py-1 bg-blue-50 border border-blue-100 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Aktif Keluar</span>
                                                 @elseif($history->status === 'returned_on_time')
-                                                    <span class="px-2 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-[11px] font-bold uppercase">Tepat Waktu</span>
+                                                    <span class="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Tepat Waktu</span>
                                                 @elseif($history->status === 'returned_late')
-                                                    <span class="px-2 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-md text-[11px] font-bold uppercase">Terlambat ({{ $history->lateness_duration }} Menit)</span>
+                                                    <span class="px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Terlambat</span>
                                                 @elseif($history->status === 'pending')
-                                                    <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-md text-[11px] font-bold uppercase">Menunggu</span>
+                                                    <span class="px-2.5 py-1 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Menunggu</span>
                                                 @elseif($history->status === 'rejected')
-                                                    <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-500 rounded-md text-[11px] font-bold uppercase">Ditolak</span>
+                                                    <span class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-wider">Ditolak</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -168,9 +169,9 @@
                             Belum ada riwayat absensi kegiatan.
                         </div>
                     @else
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto scrollbar-thin">
                             <table class="w-full text-sm text-left text-slate-650">
-                                <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                                <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold whitespace-nowrap">
                                     <tr>
                                         <th class="px-6 py-3.5">Nama Kegiatan</th>
                                         <th class="px-6 py-3.5">Tanggal</th>
@@ -181,22 +182,22 @@
                                 <tbody class="divide-y divide-slate-200/80 font-medium">
                                     @foreach($activityAttendances as $rec)
                                         <tr class="hover:bg-slate-50/50 transition duration-150">
-                                            <td class="px-6 py-4 font-bold text-slate-800">{{ $rec->activity->name }}</td>
-                                            <td class="px-6 py-4 text-xs text-slate-600">
+                                            <td class="px-6 py-4 font-bold text-slate-800 min-w-[150px]">{{ $rec->activity->name }}</td>
+                                            <td class="px-6 py-4 text-xs text-slate-600 whitespace-nowrap">
                                                 {{ $rec->activity->date->translatedFormat('d F Y') }}
                                             </td>
-                                            <td class="px-6 py-4">
+                                            <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($rec->status === 'hadir')
-                                                    <span class="px-2 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-[11px] font-bold uppercase">Hadir</span>
+                                                    <span class="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Hadir</span>
                                                 @elseif($rec->status === 'sakit')
-                                                    <span class="px-2 py-1 bg-amber-50 border border-amber-100 text-amber-700 rounded-md text-[11px] font-bold uppercase">Sakit</span>
+                                                    <span class="px-2.5 py-1 bg-amber-50 border border-amber-100 text-amber-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Sakit</span>
                                                 @elseif($rec->status === 'izin')
-                                                    <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-md text-[11px] font-bold uppercase">Izin</span>
+                                                    <span class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">Izin</span>
                                                 @elseif($rec->status === 'alpa')
-                                                    <span class="px-2 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-md text-[11px] font-bold uppercase">Alpa</span>
+                                                    <span class="px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Alpa</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 text-xs text-slate-500">{{ $rec->notes ?? '—' }}</td>
+                                            <td class="px-6 py-4 text-xs text-slate-500 min-w-[120px]">{{ $rec->notes ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
