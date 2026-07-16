@@ -47,4 +47,28 @@ class StudentManagementTest extends TestCase
         $responseSearch->assertSee('Budi Santoso');
         $responseSearch->assertDontSee('Siti Aminah');
     }
+
+    public function test_pengelola_can_reset_student_password_to_nim()
+    {
+        $pengelolaUser = User::factory()->create(['role' => 'pengelola']);
+        
+        $user = User::factory()->create([
+            'name' => 'Ahmad Roni',
+            'email' => 'ahmad@example.com',
+            'password' => bcrypt('oldpassword123'),
+            'role' => 'mahasiswa',
+        ]);
+        $student = $user->student()->create([
+            'nim' => 'P17230259999',
+            'dorm_room' => 'A-102',
+        ]);
+
+        $response = $this->actingAs($pengelolaUser)->post(route('admin.students.resetPassword', $student));
+        
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $user->refresh();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('P17230259999', $user->password));
+    }
 }

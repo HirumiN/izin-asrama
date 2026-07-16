@@ -117,4 +117,16 @@ class StudentController extends Controller
 
         return back()->with('success', "Penangguhan untuk {$student->user->name} berhasil dicabut. Mahasiswa kini dapat mengajukan izin kembali.");
     }
+
+    /**
+     * Mereset password akun mahasiswa menjadi NIM.
+     */
+    public function resetPassword(Student $student)
+    {
+        $student->user->update([
+            'password' => Hash::make($student->nim),
+        ]);
+
+        return back()->with('success', "Password untuk {$student->user->name} (NIM: {$student->nim}) berhasil di-reset menjadi NIM ({$student->nim}).");
+    }
 }

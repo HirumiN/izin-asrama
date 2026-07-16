@@ -140,17 +140,32 @@
                                 <td class="px-6 py-4 text-slate-500 text-xs">
                                     {{ $student->created_at->format('d/m/Y, H:i') }}
                                 </td>
-                                <td class="px-6 py-4">
-                                    @if($student->isSuspended())
-                                        <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" onsubmit="return confirm('Yakin ingin mencabut penangguhan untuk ' + {{ Js::from($student->user->name) }} + '?')">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <form action="{{ route('admin.students.resetPassword', $student) }}" method="POST" id="form-reset-{{ $student->id }}">
                                             @csrf
-                                            <button type="submit" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-emerald-100 rounded-lg text-xs font-bold hover:bg-emerald-700 transition duration-150 cursor-pointer shadow-sm">
-                                                Cabut Penangguhan
+                                            <button type="button" 
+                                                onclick="showResetPasswordModal({{ Js::from($student->user->name) }}, {{ Js::from($student->nim) }}, 'form-reset-{{ $student->id }}')"
+                                                class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 border border-amber-600 text-white rounded-lg text-xs font-bold transition duration-150 cursor-pointer shadow-sm flex items-center gap-1.5" 
+                                                title="Reset Password ke NIM">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25z" />
+                                                </svg>
+                                                Reset Password
                                             </button>
                                         </form>
-                                    @else
-                                        <span class="text-slate-400 text-xs">-</span>
-                                    @endif
+
+                                        @if($student->isSuspended())
+                                            <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" id="form-lift-{{ $student->id }}">
+                                                @csrf
+                                                <button type="button" 
+                                                    onclick="showLiftSuspensionModal({{ Js::from($student->user->name) }}, 'form-lift-{{ $student->id }}')"
+                                                    class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-emerald-100 rounded-lg text-xs font-bold hover:bg-emerald-700 transition duration-150 cursor-pointer shadow-sm">
+                                                    Cabut Penangguhan
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -165,10 +180,123 @@
         @endif
     </div>
 
+    <!-- Custom Action Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden transition-opacity duration-200 opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200/80 max-w-md w-full p-6 space-y-5 transform transition-all duration-200 scale-95" id="confirm-modal-box">
+            <!-- Header & Icon -->
+            <div class="flex items-start gap-4">
+                <div id="confirm-modal-icon-bg" class="p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-600 shrink-0">
+                    <svg id="confirm-modal-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25z" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <h3 id="confirm-modal-title" class="text-lg font-bold text-slate-900">Konfirmasi Reset Password</h3>
+                    <p id="confirm-modal-message" class="text-sm text-slate-500 leading-relaxed">
+                        Apakah Anda yakin ingin mereset password untuk mahasiswa ini?
+                    </p>
+                </div>
+            </div>
+
+            <!-- Details Badge / Card -->
+            <div id="confirm-modal-detail" class="px-4 py-3 bg-slate-50 border border-slate-200/70 rounded-xl text-xs space-y-1.5">
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeActionModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition duration-150 cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" id="confirm-modal-submit-btn" onclick="submitActionModalForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
 <script>
+let targetFormId = null;
+
+function showResetPasswordModal(name, nim, formId) {
+    targetFormId = formId;
+    
+    document.getElementById('confirm-modal-title').textContent = 'Reset Password Mahasiswa';
+    document.getElementById('confirm-modal-message').textContent = 'Password akun akan disamakan dengan NIM mahasiswa.';
+    
+    const detailBox = document.getElementById('confirm-modal-detail');
+    detailBox.innerHTML = `
+        <div class="text-slate-600 font-medium">Mahasiswa: <strong class="text-slate-900 font-bold">${name}</strong></div>
+        <div class="text-slate-600 font-medium">Password Baru: <code class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-mono font-bold text-xs">${nim}</code></div>
+    `;
+
+    const iconBg = document.getElementById('confirm-modal-icon-bg');
+    iconBg.className = 'p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-600 shrink-0';
+    iconBg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25z" /></svg>`;
+
+    const btn = document.getElementById('confirm-modal-submit-btn');
+    btn.className = 'px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
+    btn.textContent = 'Ya, Reset Password';
+
+    openActionModal();
+}
+
+function showLiftSuspensionModal(name, formId) {
+    targetFormId = formId;
+
+    document.getElementById('confirm-modal-title').textContent = 'Cabut Penangguhan';
+    document.getElementById('confirm-modal-message').textContent = 'Apakah Anda yakin ingin mencabut penangguhan mahasiswa ini?';
+
+    const detailBox = document.getElementById('confirm-modal-detail');
+    detailBox.innerHTML = `<div class="text-slate-600 font-medium">Mahasiswa: <strong class="text-slate-900 font-bold">${name}</strong></div>`;
+
+    const iconBg = document.getElementById('confirm-modal-icon-bg');
+    iconBg.className = 'p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600 shrink-0';
+    iconBg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+
+    const btn = document.getElementById('confirm-modal-submit-btn');
+    btn.className = 'px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
+    btn.textContent = 'Ya, Cabut Penangguhan';
+
+    openActionModal();
+}
+
+function openActionModal() {
+    const modal = document.getElementById('confirm-modal');
+    const box = document.getElementById('confirm-modal-box');
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+        modal.classList.remove('opacity-0');
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+    });
+}
+
+function closeActionModal() {
+    const modal = document.getElementById('confirm-modal');
+    const box = document.getElementById('confirm-modal-box');
+    modal.classList.add('opacity-0');
+    box.classList.remove('scale-100');
+    box.classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+function submitActionModalForm() {
+    if (targetFormId) {
+        const form = document.getElementById(targetFormId);
+        if (form) form.submit();
+    }
+}
+
+// Esc key to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeActionModal();
+});
+
 (function() {
     const searchInput = document.getElementById('student-search-input');
     const clearBtn = document.getElementById('search-clear-btn');
