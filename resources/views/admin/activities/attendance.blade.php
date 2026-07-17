@@ -55,24 +55,24 @@
             </div>
 
             <!-- Statistik Ringkasan -->
-            <div class="mt-5 pt-5 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div class="text-center p-3 bg-emerald-50 border border-emerald-100 rounded-xl min-w-0">
+            <div class="mt-5 pt-5 border-t border-slate-100 flex flex-col md:flex-row gap-3">
+                <div class="flex-1 text-center p-3 bg-emerald-50 border border-emerald-100 rounded-xl min-w-0">
                     <div class="text-2xl font-extrabold text-emerald-700">{{ $stats['hadir'] }}</div>
                     <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">Hadir</div>
                 </div>
-                <div class="text-center p-3 bg-amber-50 border border-amber-100 rounded-xl min-w-0">
+                <div class="flex-1 text-center p-3 bg-amber-50 border border-amber-100 rounded-xl min-w-0">
                     <div class="text-2xl font-extrabold text-amber-700">{{ $stats['sakit'] }}</div>
                     <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5">Sakit</div>
                 </div>
-                <div class="text-center p-3 bg-slate-100 border border-slate-200 rounded-xl min-w-0">
+                <div class="flex-1 text-center p-3 bg-slate-100 border border-slate-200 rounded-xl min-w-0">
                     <div class="text-2xl font-extrabold text-slate-700">{{ $stats['izin'] }}</div>
                     <div class="text-[10px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">Izin</div>
                 </div>
-                <div class="text-center p-3 bg-rose-50 border border-rose-100 rounded-xl min-w-0">
+                <div class="flex-1 text-center p-3 bg-rose-50 border border-rose-100 rounded-xl min-w-0">
                     <div class="text-2xl font-extrabold text-rose-700">{{ $stats['alpa'] }}</div>
                     <div class="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5">Alpa</div>
                 </div>
-                <div class="text-center p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl col-span-2 sm:col-span-1 min-w-0">
+                <div class="flex-1 text-center p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl min-w-0">
                     <div class="text-2xl font-extrabold text-slate-500">{{ $stats['belum_absen'] }}</div>
                     <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Belum Absen</div>
                 </div>

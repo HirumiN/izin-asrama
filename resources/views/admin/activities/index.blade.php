@@ -78,16 +78,15 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     @php
-                                        $totalAttendances = $activity->attendances()->count();
                                         $hadirCount = $activity->attendances()->where('status', 'hadir')->count();
                                     @endphp
-                                    @if($totalAttendances > 0)
+                                    @if($hadirCount > 0)
                                         <span class="inline-flex px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-xs font-bold uppercase tracking-wider">
-                                            {{ $hadirCount }}/{{ $totalAttendances }} Hadir
+                                            {{ $hadirCount }}/{{ $totalStudents }} Hadir
                                         </span>
                                     @else
                                         <span class="inline-flex px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 rounded-md text-xs font-bold uppercase tracking-wider">
-                                            Belum Diabsen
+                                            0/{{ $totalStudents }} Hadir
                                         </span>
                                     @endif
                                 </td>

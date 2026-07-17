@@ -129,4 +129,20 @@ class StudentController extends Controller
 
         return back()->with('success', "Password untuk {$student->user->name} (NIM: {$student->nim}) berhasil di-reset menjadi NIM ({$student->nim}).");
     }
+
+    /**
+     * Menghapus data mahasiswa secara permanen beserta semua riwayatnya.
+     */
+    public function destroy(Student $student)
+    {
+        $name = $student->user->name;
+        
+        // Menggunakan transaksi database agar konsisten
+        DB::transaction(function () use ($student) {
+            // Hapus user yang akan otomatis cascade delete student dan relasi lainnya
+            $student->user->delete();
+        });
+
+        return redirect()->route('admin.students.index')->with('success', "Data mahasiswa {$name} beserta seluruh riwayat absensi dan izinnya berhasil dihapus secara permanen.");
+    }
 }

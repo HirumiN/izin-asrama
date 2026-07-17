@@ -9,16 +9,15 @@ use Illuminate\Http\Request;
 
 class ActivityController extends Controller
 {
-    /**
-     * Tampilkan daftar seluruh kegiatan.
-     */
     public function index()
     {
         $activities = Activity::orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('admin.activities.index', compact('activities'));
+        $totalStudents = Student::count();
+
+        return view('admin.activities.index', compact('activities', 'totalStudents'));
     }
 
     /**

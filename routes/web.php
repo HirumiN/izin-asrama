@@ -54,6 +54,7 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
     Route::post('/students/{student}/lift-suspension', [AdminStudentController::class, 'liftSuspension'])->name('students.liftSuspension');
     Route::post('/students/{student}/reset-password', [AdminStudentController::class, 'resetPassword'])->name('students.resetPassword');
+    Route::delete('/students/{student}', [AdminStudentController::class, 'destroy'])->name('students.destroy');
     
     // Rute Monitoring Absen Shalat
     Route::get('/sholat', [AdminPrayerMonitoringController::class, 'index'])->name('sholat.index');
