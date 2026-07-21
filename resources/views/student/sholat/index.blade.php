@@ -322,7 +322,7 @@
                                 </div>
                                 <p class="text-xs font-extrabold text-amber-800">Sakit</p>
                             @elseif($attendance->status === 'izin')
-                                <div class="inline-flex p-2.5 bg-slate-100 text-slate-655 rounded-xl border border-slate-200 shadow-sm">
+                                <div class="inline-flex p-2.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200 shadow-sm">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0l-3-3m3 3h-7.5"/></svg>
                                 </div>
                                 <p class="text-xs font-extrabold text-slate-800">Izin / Luar</p>
@@ -357,7 +357,7 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M12 12.75a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
                                     </div>
                                     
-                                    <span class="status-option-text text-[10px] font-extrabold text-slate-655 mt-1 block">Masjid</span>
+                                    <span class="status-option-text text-[10px] font-extrabold text-slate-500 mt-1 block">Masjid</span>
                                 </label>
 
                                 <!-- Munfarid Option -->
@@ -376,7 +376,7 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
                                     </div>
                                     
-                                    <span class="status-option-text text-[10px] font-extrabold text-slate-655 mt-1 block">Sendiri</span>
+                                    <span class="status-option-text text-[10px] font-extrabold text-slate-500 mt-1 block">Sendiri</span>
                                 </label>
 
                                 <!-- Sakit Option -->
@@ -395,7 +395,7 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
                                     </div>
                                     
-                                    <span class="status-option-text text-[10px] font-extrabold text-slate-655 mt-1 block">Sakit</span>
+                                    <span class="status-option-text text-[10px] font-extrabold text-slate-500 mt-1 block">Sakit</span>
                                 </label>
 
                                 <!-- Izin Option -->
@@ -414,7 +414,7 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0l-3-3m3 3h-7.5"/></svg>
                                     </div>
                                     
-                                    <span class="status-option-text text-[10px] font-extrabold text-slate-655 mt-1 block">Izin</span>
+                                    <span class="status-option-text text-[10px] font-extrabold text-slate-500 mt-1 block">Izin</span>
                                 </label>
                             </div>
                         </div>
@@ -449,7 +449,7 @@
             </div>
         @else
             <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-sm text-left text-slate-650">
+                <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs uppercase bg-slate-50/80 text-slate-500 border-b border-slate-200 font-extrabold tracking-wider">
                         <tr>
                             <th class="px-6 py-4">Tanggal</th>
@@ -490,7 +490,7 @@
                                                     Sakit
                                                 </span>
                                             @elseif($att->status === 'izin')
-                                                <span class="inline-flex px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-655 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                                                <span class="inline-flex px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                                                     Izin
                                                 </span>
                                             @endif

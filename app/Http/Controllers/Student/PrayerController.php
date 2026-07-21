@@ -32,7 +32,7 @@ class PrayerController extends Controller
 
         // Ambil data absen berdasarkan tanggal-tanggal tersebut
         $historyAttendances = $student->prayerAttendances()
-            ->whereIn('date', $historyDates->pluck('date'))
+            ->whereIn('date', $historyDates->pluck('date')->map(fn($d) => $d->format('Y-m-d')))
             ->get()
             ->groupBy(function ($item) {
                 return $item->date->format('Y-m-d');
