@@ -90,10 +90,10 @@
                                         <td class="px-6 py-4">{{ $permit->start_time->format('d/m/Y, H:i') }}</td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <button type="button" onclick="singleAction('approve', {{ $permit->id }})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition duration-150 shadow-md transform active:scale-[0.95]">
+                                                <button type="button" onclick="singleAction('approve', {{ $permit->id }}, 'pesiar')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition duration-150 shadow-md transform active:scale-[0.95]">
                                                     Setujui / ACC
                                                 </button>
-                                                <button type="button" onclick="singleAction('reject', {{ $permit->id }})" class="px-3 py-1.5 bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-350 hover:border-rose-200 rounded-lg text-xs font-bold transition duration-150 transform active:scale-[0.95]">
+                                                <button type="button" onclick="singleAction('reject', {{ $permit->id }}, 'pesiar')" class="px-3 py-1.5 bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-350 hover:border-rose-200 rounded-lg text-xs font-bold transition duration-150 transform active:scale-[0.95]">
                                                     Tolak
                                                 </button>
                                             </div>
@@ -184,10 +184,10 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <button type="button" onclick="singleAction('approve', {{ $permit->id }})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition duration-150 shadow-md transform active:scale-[0.95]">
+                                                <button type="button" onclick="singleAction('approve', {{ $permit->id }}, 'bermalam')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition duration-150 shadow-md transform active:scale-[0.95]">
                                                     Setujui / ACC
                                                 </button>
-                                                <button type="button" onclick="singleAction('reject', {{ $permit->id }})" class="px-3 py-1.5 bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-350 hover:border-rose-200 rounded-lg text-xs font-bold transition duration-150 transform active:scale-[0.95]">
+                                                <button type="button" onclick="singleAction('reject', {{ $permit->id }}, 'bermalam')" class="px-3 py-1.5 bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-350 hover:border-rose-200 rounded-lg text-xs font-bold transition duration-150 transform active:scale-[0.95]">
                                                     Tolak
                                                 </button>
                                             </div>
@@ -651,7 +651,7 @@
         }
     }
 
-    function singleAction(actionType, id) {
+    function singleAction(actionType, id, permitType = 'pesiar') {
         const modal = document.getElementById('action-modal');
         const card = document.getElementById('action-modal-card');
         const title = document.getElementById('action-modal-title');
@@ -660,6 +660,7 @@
         const noteLabel = document.getElementById('action-note-label');
         const noteInput = document.getElementById('admin_note');
         const btnSubmit = document.getElementById('action-btn-submit');
+        const wrapperCustomTime = document.getElementById('wrapper-custom-return-time');
 
         // Set action url
         form.action = actionType === 'approve' 
@@ -675,9 +676,16 @@
             noteInput.placeholder = 'Contoh: Silakan keluar, hati-hati di jalan.';
             noteInput.required = false;
 
+            if (permitType === 'pesiar') {
+                wrapperCustomTime.classList.remove('hidden');
+            } else {
+                wrapperCustomTime.classList.add('hidden');
+            }
+
             btnSubmit.innerText = 'Setujui / ACC';
             btnSubmit.className = 'flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98] flex items-center justify-center';
         } else {
+            wrapperCustomTime.classList.add('hidden');
             title.innerText = 'Tolak Pengajuan Izin';
             desc.innerText = 'Apakah Anda yakin ingin menolak pengajuan izin ini? Harap tuliskan alasan penolakan agar mahasiswa mengetahuinya.';
             noteLabel.innerText = 'Alasan Penolakan';
@@ -832,6 +840,13 @@
             
             <form id="action-modal-form" method="POST" class="space-y-4">
                 @csrf
+                <div id="wrapper-custom-return-time" class="hidden">
+                    <label for="custom_return_time" class="block text-sm font-semibold text-slate-700">Jam Batas Kembali Pesiar (Kustom)</label>
+                    <input type="time" name="custom_return_time" id="custom_return_time" value="22:00"
+                        class="w-full mt-1.5 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm">
+                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Batas jam kembali default 22:00 WIB. Anda dapat menyesuaikannya untuk pengajuan pesiar ini.</p>
+                </div>
+
                 <div>
                     <label for="admin_note" id="action-note-label" class="block text-sm font-semibold text-slate-700">Catatan (Opsional)</label>
                     <textarea name="admin_note" id="admin_note" rows="3"

@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Auth;
 
 class PermitController extends Controller
 {
+    // Jam maksimal kepulangan izin pesiar (Default: 22:00 WIB)
+    public const PESIAR_MAX_HOUR = 22;
+    public const PESIAR_MAX_MINUTE = 0;
+
     public function index(Request $request)
     {
         // Pengajuan Masuk (Pending) - dipisah per jenis izin
@@ -92,7 +96,12 @@ class PermitController extends Controller
             return back()->with('error', 'Status pengajuan tidak valid untuk disetujui.');
         }
 
-        $this->applyPermitDecision($permit, 'approved', $request->input('admin_note'));
+        $this->applyPermitDecision(
+            $permit, 
+            'approved', 
+            $request->input('admin_note'),
+            $request->input('custom_return_time')
+        );
 
         return redirect()->route('admin.dashboard')->with('success', 'Pengajuan izin berhasil disetujui.');
     }
@@ -135,7 +144,12 @@ class PermitController extends Controller
             ->get();
 
         foreach ($permits as $permit) {
-            $this->applyPermitDecision($permit, $newStatus);
+            $this->applyPermitDecision(
+                $permit, 
+                $newStatus, 
+                null, 
+                $request->input('custom_return_time')
+            );
             $count++;
         }
 
@@ -195,9 +209,9 @@ class PermitController extends Controller
 
     /**
      * Terapkan keputusan (setuju/tolak) pada permit dan simpan ke database.
-     * Untuk status 'approved', batas waktu (end_time) dihitung otomatis.
+     * Untuk status 'approved', batas waktu (end_time) dihitung otomatis atau kustom.
      */
-    private function applyPermitDecision(Permit $permit, string $status, ?string $adminNote = null): void
+    private function applyPermitDecision(Permit $permit, string $status, ?string $adminNote = null, ?string $customReturnTime = null): void
     {
         $permit->status     = $status;
         $permit->action_by  = Auth::id();
@@ -205,11 +219,20 @@ class PermitController extends Controller
         $permit->admin_note = $adminNote;
 
         if ($status === 'approved') {
-            // Pesiar: kembali hari yang sama jam 21:00
-            // Bermalam: kembali sesuai tanggal yang ditentukan jam 06:30
-            $permit->end_time = $permit->type === 'pesiar'
-                ? Carbon::parse($permit->start_time)->setTime(21, 0, 0)
-                : Carbon::parse($permit->end_time)->setTime(6, 30, 0);
+            if ($permit->type === 'pesiar') {
+                if ($customReturnTime) {
+                    if (preg_match('/^\d{2}:\d{2}$/', $customReturnTime)) {
+                        [$hour, $minute] = explode(':', $customReturnTime);
+                        $permit->end_time = Carbon::parse($permit->start_time)->setTime((int) $hour, (int) $minute, 0);
+                    } else {
+                        $permit->end_time = Carbon::parse($customReturnTime);
+                    }
+                } else {
+                    $permit->end_time = Carbon::parse($permit->start_time)->setTime(self::PESIAR_MAX_HOUR, self::PESIAR_MAX_MINUTE, 0);
+                }
+            } else {
+                $permit->end_time = Carbon::parse($permit->end_time)->setTime(6, 30, 0);
+            }
         }
 
         $permit->save();

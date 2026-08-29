@@ -120,7 +120,7 @@
                                 </div>
                             </div>
                             <p class="text-xs text-blue-600 mt-4 font-semibold" id="curfew-notice">
-                                *Harap kembali dan melapor sebelum pukul 21:00 WIB.
+                                *Harap kembali dan melapor sebelum jam malam.
                             </p>
                         </div>
 
@@ -487,7 +487,7 @@
                     Aturan Keluar Asrama
                 </h3>
                 <ul class="space-y-3 text-xs text-slate-700 list-disc list-inside font-medium">
-                    <li>Izin pesiar wajib kembali pada hari yang sama paling lambat pukul <strong class="text-slate-900">21:00 WIB</strong>.</li>
+                    <li>Izin pesiar wajib kembali pada hari yang sama paling lambat pukul <strong class="text-slate-900">22:00 WIB</strong>.</li>
                     <li>Izin bermalam wajib kembali paling lambat pukul <strong class="text-slate-900">06:30 WIB</strong> pada tanggal kepulangan yang disetujui (Atau hari Senin untuk Bermalam Biasa).</li>
                     <li>Pelanggaran batas waktu (keterlambatan) akan <strong class="text-rose-600">tercatat otomatis oleh sistem</strong> dan mempengaruhi sanksi asrama.</li>
                     <li>Pastikan melapor kembali ke Pos Asrama dan meminta pengelola untuk <strong class="text-blue-600">melakukan Scan/Lapor Kembali</strong> untuk menyelesaikan izin.</li>

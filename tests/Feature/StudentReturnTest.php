@@ -208,6 +208,34 @@ class StudentReturnTest extends TestCase
         $this->assertEquals('Hati-hati di jalan ya.', $permit->admin_note);
     }
 
+    public function test_manager_can_approve_pesiar_permit_with_custom_return_time()
+    {
+        $adminUser = User::factory()->create(['role' => 'pengelola']);
+        $studentUser = User::factory()->create(['role' => 'mahasiswa']);
+        $student = $studentUser->student()->create(['nim' => 'NIM006B', 'dorm_room' => 'A-103']);
+
+        $startTime = Carbon::parse('2026-08-30 10:00:00');
+
+        $permit = Permit::create([
+            'student_id' => $student->id,
+            'type' => 'pesiar',
+            'destination' => 'Mall',
+            'start_time' => $startTime,
+            'status' => 'pending',
+        ]);
+
+        // ACC dengan kustom return time jam 22:30
+        $response = $this->actingAs($adminUser)->post(route('admin.permits.approve', $permit), [
+            'admin_note' => 'Acc pesiar sampai 22:30',
+            'custom_return_time' => '22:30',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $permit->refresh();
+        $this->assertEquals('approved', $permit->status);
+        $this->assertEquals('22:30:00', $permit->end_time->format('H:i:s'));
+    }
+
     public function test_manager_can_reject_permit_with_note()
     {
         $adminUser = User::factory()->create(['role' => 'pengelola']);
