@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permit;
+use App\Exports\PermitsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -162,6 +164,20 @@ class PermitController extends Controller
             : "Lapor kembali berhasil. Mahasiswa kembali tepat waktu.";
 
         return redirect()->route('admin.dashboard')->with('success', $message);
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $filename = 'riwayat_izin_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $csvData = Excel::raw(new PermitsExport($request), \Maatwebsite\Excel\Excel::CSV);
+
+        return response($csvData, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
     }
 
     // -------------------------------------------------------------------------

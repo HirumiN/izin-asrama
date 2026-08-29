@@ -66,6 +66,13 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     // Monitoring kehadiran (read-only) — mahasiswa absen mandiri dari akun masing-masing
     Route::get('/activities/{activity}/attendance', [ActivityController::class, 'showAttendance'])->name('activities.attendance.show');
 
+    // Rute Export CSV
+    Route::get('/permits/export-csv', [AdminPermitController::class, 'exportCsv'])->name('permits.export-csv');
+    Route::get('/students/export-csv', [AdminStudentController::class, 'exportCsv'])->name('students.export-csv');
+    Route::get('/sholat/export-csv', [AdminPrayerMonitoringController::class, 'exportCsv'])->name('sholat.export-csv');
+    Route::get('/activities/export-csv', [ActivityController::class, 'exportCsv'])->name('activities.export-csv');
+    Route::get('/activities/{activity}/attendance/export-csv', [ActivityController::class, 'exportAttendanceCsv'])->name('activities.attendance.export-csv');
+
     // Rute Pengaturan Profil Admin
     Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [AdminProfileController::class, 'update'])->name('profile.update');

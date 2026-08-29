@@ -12,7 +12,11 @@
             <h2 class="text-xl font-bold text-slate-900">Semua Data Mahasiswa</h2>
             <p class="text-sm text-slate-500 mt-0.5">Kelola akun dan informasi asrama bagi seluruh mahasiswa terdaftar.</p>
         </div>
-        <div class="shrink-0">
+        <div class="shrink-0 flex items-center gap-2">
+            <a href="{{ route('admin.students.export-csv', request()->query()) }}" download id="export-csv-btn" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Export CSV
+            </a>
             <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -384,6 +388,13 @@ document.addEventListener('keydown', function(e) {
 
                 container.style.opacity = '1';
                 window.history.replaceState({}, '', url);
+
+                const exportBtn = document.getElementById('export-csv-btn');
+                if (exportBtn) {
+                    const exportBase = "{{ route('admin.students.export-csv') }}";
+                    const params = new URLSearchParams(window.location.search);
+                    exportBtn.href = params.toString() ? exportBase + '?' + params.toString() : exportBase;
+                }
             })
             .catch(err => {
                 console.error('AJAX fetch failed:', err);

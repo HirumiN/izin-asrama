@@ -5,10 +5,26 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\PrayerAttendance;
+use App\Exports\PrayerAttendanceExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class PrayerMonitoringController extends Controller
 {
+    public function exportCsv(Request $request)
+    {
+        $selectedDate = $request->input('date', today()->format('Y-m-d'));
+        $filename = 'absen_shalat_' . $selectedDate . '_' . now()->format('H-i-s') . '.csv';
+        $csvData = Excel::raw(new PrayerAttendanceExport($request), \Maatwebsite\Excel\Excel::CSV);
+
+        return response($csvData, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
+    }
     public function index(Request $request)
     {
         $selectedDate = $request->input('date', today()->format('Y-m-d'));

@@ -5,10 +5,41 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Student;
+use App\Exports\ActivitiesExport;
+use App\Exports\ActivityAttendanceExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ActivityController extends Controller
 {
+    public function exportCsv()
+    {
+        $filename = 'daftar_kegiatan_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $csvData = Excel::raw(new ActivitiesExport(), \Maatwebsite\Excel\Excel::CSV);
+
+        return response($csvData, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
+    }
+
+    public function exportAttendanceCsv(Activity $activity)
+    {
+        $filename = 'absensi_' . Str::slug($activity->name) . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $csvData = Excel::raw(new ActivityAttendanceExport($activity), \Maatwebsite\Excel\Excel::CSV);
+
+        return response($csvData, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
+    }
     public function index()
     {
         $activities = Activity::orderBy('date', 'desc')

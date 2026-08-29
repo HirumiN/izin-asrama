@@ -1,6 +1,5 @@
 // E-Asrama — Service Worker
-// Versi cache: ubah string ini untuk memaksa update cache saat deploy
-const CACHE_VERSION = 'eizin-v2';
+const CACHE_VERSION = 'eizin-v4';
 
 // Aset statis yang akan di-cache saat install
 const STATIC_ASSETS = [
@@ -43,16 +42,30 @@ self.addEventListener('fetch', (event) => {
     // Abaikan request non-GET (POST form, dll)
     if (request.method !== 'GET') return;
 
-    // Abaikan request ke API/endpoint yang selalu harus fresh
     const url = new URL(request.url);
-    if (url.pathname.startsWith('/student/permits/latest-status')) return;
+
+    // BANYAKAN INTERCEPT: Jangan pernah tangani route admin, route export, atau API status di Service Worker
+    if (
+        url.pathname.includes('/admin/') ||
+        url.pathname.includes('export') ||
+        url.pathname.startsWith('/student/permits/latest-status')
+    ) {
+        return;
+    }
 
     // Request navigasi (halaman HTML): Network-first
     if (request.mode === 'navigate') {
         event.respondWith(
             fetch(request)
                 .then((response) => {
-                    // Simpan salinan ke cache
+                    // Jika respons adalah file download / attachment atau bukan HTML, langsung kembalikan tanpa clone/cache
+                    const disposition = response.headers.get('content-disposition') || '';
+                    const type = response.headers.get('content-type') || '';
+
+                    if (disposition.includes('attachment') || !type.includes('text/html')) {
+                        return response;
+                    }
+
                     const responseClone = response.clone();
                     caches.open(CACHE_VERSION).then((cache) => {
                         cache.put(request, responseClone);

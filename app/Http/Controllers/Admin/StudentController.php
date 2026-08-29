@@ -5,12 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
+use App\Exports\StudentsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
+    public function exportCsv(Request $request)
+    {
+        $filename = 'data_mahasiswa_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $csvData = Excel::raw(new StudentsExport($request), \Maatwebsite\Excel\Excel::CSV);
+
+        return response($csvData, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
+    }
     public function create()
     {
         return view('admin.students.create');

@@ -629,7 +629,10 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
+                    .then(reg => {
+                        console.log('SW registered:', reg.scope);
+                        reg.update(); // Paksa update SW ke versi terbaru
+                    })
                     .catch(err => console.error('SW registration failed:', err));
             });
         }
