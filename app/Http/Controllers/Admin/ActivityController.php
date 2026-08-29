@@ -121,4 +121,22 @@ class ActivityController extends Controller
 
         return view('admin.activities.attendance', compact('activity', 'students', 'attendances', 'stats'));
     }
+
+    /**
+     * Menghapus beberapa kegiatan beserta seluruh riwayat absensinya secara masal.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'activity_ids'   => 'required|array',
+            'activity_ids.*' => 'exists:activities,id',
+        ], [
+            'activity_ids.required' => 'Pilihlah minimal satu kegiatan untuk dihapus.',
+        ]);
+
+        $count = Activity::whereIn('id', $request->activity_ids)->delete();
+
+        return redirect()->route('admin.activities.index')
+            ->with('success', "Berhasil menghapus {$count} kegiatan asrama beserta seluruh riwayat absensinya.");
+    }
 }

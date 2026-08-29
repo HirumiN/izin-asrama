@@ -113,10 +113,19 @@ class PermitController extends Controller
         $request->validate([
             'permit_ids'   => 'required|array',
             'permit_ids.*' => 'exists:permits,id',
-            'action'       => 'required|in:approve,reject',
+            'action'       => 'required|in:approve,reject,delete',
+        ], [
+            'permit_ids.required' => 'Pilihlah minimal satu pengajuan izin.',
+            'action.required'     => 'Pilihlah aksi masal yang ingin dilakukan.',
         ]);
 
         $action = $request->action;
+
+        if ($action === 'delete') {
+            $count = Permit::whereIn('id', $request->permit_ids)->delete();
+            return redirect()->route('admin.dashboard')->with('success', "Berhasil menghapus {$count} data izin.");
+        }
+
         $newStatus = $action === 'approve' ? 'approved' : 'rejected';
         $count = 0;
 

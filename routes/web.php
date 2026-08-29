@@ -54,15 +54,18 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
     Route::post('/students/{student}/lift-suspension', [AdminStudentController::class, 'liftSuspension'])->name('students.liftSuspension');
     Route::post('/students/{student}/reset-password', [AdminStudentController::class, 'resetPassword'])->name('students.resetPassword');
+    Route::post('/students/bulk-delete', [AdminStudentController::class, 'bulkDestroy'])->name('students.bulk-delete');
     Route::delete('/students/{student}', [AdminStudentController::class, 'destroy'])->name('students.destroy');
     
     // Rute Monitoring Absen Shalat
     Route::get('/sholat', [AdminPrayerMonitoringController::class, 'index'])->name('sholat.index');
+    Route::post('/sholat/bulk-delete', [AdminPrayerMonitoringController::class, 'bulkDelete'])->name('sholat.bulk-delete');
 
     // Rute Kegiatan Kustom (Custom Absen)
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('/activities/create', [ActivityController::class, 'create'])->name('activities.create');
     Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
+    Route::post('/activities/bulk-delete', [ActivityController::class, 'bulkDelete'])->name('activities.bulk-delete');
     // Monitoring kehadiran (read-only) — mahasiswa absen mandiri dari akun masing-masing
     Route::get('/activities/{activity}/attendance', [ActivityController::class, 'showAttendance'])->name('activities.attendance.show');
 

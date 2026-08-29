@@ -160,4 +160,31 @@ class StudentController extends Controller
 
         return redirect()->route('admin.students.index')->with('success', "Data mahasiswa {$name} beserta seluruh riwayat absensi dan izinnya berhasil dihapus secara permanen.");
     }
+
+    /**
+     * Menghapus data mahasiswa terpilih secara masal beserta seluruh riwayatnya.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'student_ids'   => 'required|array',
+            'student_ids.*' => 'exists:students,id',
+        ], [
+            'student_ids.required' => 'Pilihlah minimal satu data mahasiswa untuk dihapus.',
+        ]);
+
+        $count = 0;
+        DB::transaction(function () use ($request, &$count) {
+            $students = Student::with('user')->whereIn('id', $request->student_ids)->get();
+            foreach ($students as $student) {
+                if ($student->user) {
+                    $student->user->delete();
+                    $count++;
+                }
+            }
+        });
+
+        return redirect()->route('admin.students.index')
+            ->with('success', "Berhasil menghapus {$count} data mahasiswa beserta seluruh riwayatnya secara permanen.");
+    }
 }

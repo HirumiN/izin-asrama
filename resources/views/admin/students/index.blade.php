@@ -99,22 +99,51 @@
                 Tidak ada data mahasiswa ditemukan.
             </div>
         @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-650">
-                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
-                        <tr>
-                            <th class="px-6 py-3.5">Mahasiswa</th>
-                            <th class="px-6 py-3.5">NIM</th>
-                            <th class="px-6 py-3.5">Kamar</th>
-                            <th class="px-6 py-3.5">No. Telepon</th>
-                            <th class="px-6 py-3.5">Status</th>
-                            <th class="px-6 py-3.5">Terdaftar Sejak</th>
-                            <th class="px-6 py-3.5">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200/80 font-medium">
-                        @foreach($students as $student)
-                            <tr class="hover:bg-slate-50/50 transition duration-150">
+            <!-- Bulk Action Toolbar -->
+            <form action="{{ route('admin.students.bulk-delete') }}" method="POST" id="form-bulk-delete-students">
+                @csrf
+                <div id="student-bulk-bar" class="hidden mb-4 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between shadow-sm animate-fade-in">
+                    <div class="flex items-center gap-3">
+                        <span class="p-1.5 bg-rose-100 text-rose-700 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="text-sm font-bold text-rose-900" id="student-selected-count">0 mahasiswa terpilih</span>
+                            <p class="text-xs text-rose-700">Pilih opsi di bawah untuk menghapus seluruh akun & riwayat mahasiswa terpilih.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="showBulkDeleteStudentsModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                        Hapus Terpilih
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-650">
+                        <thead class="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                            <tr>
+                                <th class="px-4 py-3.5 text-center w-10">
+                                    <input type="checkbox" id="select-all-students" onclick="toggleSelectAllStudents(this)" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                                </th>
+                                <th class="px-6 py-3.5">Mahasiswa</th>
+                                <th class="px-6 py-3.5">NIM</th>
+                                <th class="px-6 py-3.5">Kamar</th>
+                                <th class="px-6 py-3.5">No. Telepon</th>
+                                <th class="px-6 py-3.5">Status</th>
+                                <th class="px-6 py-3.5">Terdaftar Sejak</th>
+                                <th class="px-6 py-3.5">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200/80 font-medium">
+                            @foreach($students as $student)
+                                <tr class="hover:bg-slate-50/50 transition duration-150">
+                                    <td class="px-4 py-4 text-center">
+                                        <input type="checkbox" name="student_ids[]" value="{{ $student->id }}" onchange="updateStudentBulkBar()" class="student-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                                    </td>
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-slate-900">{{ $student->user->name }}</div>
                                     <div class="text-xs text-slate-500 font-medium">{{ $student->user->email }}</div>
@@ -190,6 +219,7 @@
                     </tbody>
                 </table>
             </div>
+            </form>
 
             <!-- Pagination Links -->
             <div class="pt-4 border-t border-slate-100">
@@ -300,6 +330,67 @@ function showDeleteStudentModal(name, nim, formId) {
     const btn = document.getElementById('confirm-modal-submit-btn');
     btn.className = 'px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
     btn.textContent = 'Ya, Hapus Permanen';
+
+    openActionModal();
+}
+
+function toggleSelectAllStudents(master) {
+    const checkboxes = document.querySelectorAll('.student-checkbox');
+    checkboxes.forEach(cb => cb.checked = master.checked);
+    updateStudentBulkBar();
+}
+
+function updateStudentBulkBar() {
+    const checked = document.querySelectorAll('.student-checkbox:checked');
+    const bulkBar = document.getElementById('student-bulk-bar');
+    const countSpan = document.getElementById('student-selected-count');
+    const master = document.getElementById('select-all-students');
+
+    if (checked.length > 0) {
+        bulkBar.classList.remove('hidden');
+        countSpan.textContent = `${checked.length} mahasiswa terpilih`;
+    } else {
+        bulkBar.classList.add('hidden');
+    }
+
+    const allCheckboxes = document.querySelectorAll('.student-checkbox');
+    if (master && allCheckboxes.length > 0) {
+        master.checked = checked.length === allCheckboxes.length;
+    }
+}
+
+function showBulkDeleteStudentsModal() {
+    const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+    if (checkedCount === 0) return;
+
+    targetFormId = 'form-bulk-delete-students';
+
+    document.getElementById('confirm-modal-title').textContent = 'Peringatan Hapus Masal Mahasiswa';
+    document.getElementById('confirm-modal-message').textContent = 'Tindakan ini tidak dapat dibatalkan!';
+
+    const detailBox = document.getElementById('confirm-modal-detail');
+    detailBox.innerHTML = `
+        <div class="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs font-medium space-y-1">
+            <div class="font-bold text-rose-900 flex items-center gap-1">
+                <span>⚠️ PERINGATAN HAPUS DATA MASAL (${checkedCount} Mahasiswa)</span>
+            </div>
+            <p>Penghapusan ini akan menghapus akun login pengguna beserta seluruh riwayat relasinya secara permanen:</p>
+            <ul class="list-disc list-inside text-[11px] font-semibold text-rose-700 space-y-0.5 mt-1">
+                <li>Akun Login Mahasiswa</li>
+                <li>Riwayat Permohonan Izin Keluar & Bermalam</li>
+                <li>Catatan Presensi Shalat 5 Waktu</li>
+                <li>Catatan Presensi Kegiatan Asrama</li>
+            </ul>
+        </div>
+    `;
+
+    const iconBg = document.getElementById('confirm-modal-icon-bg');
+    iconBg.className = 'p-3 bg-rose-100 border border-rose-200 rounded-xl text-rose-600 shrink-0';
+    iconBg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>`;
+
+    const btn = document.getElementById('confirm-modal-submit-btn');
+    btn.className = 'px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
+    btn.textContent = `Ya, Hapus ${checkedCount} Mahasiswa`;
 
     openActionModal();
 }

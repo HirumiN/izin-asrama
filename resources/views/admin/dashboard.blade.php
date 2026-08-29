@@ -55,6 +55,9 @@
                             <button type="button" onclick="submitBulk('pesiar', 'reject')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
                                 Tolak Terpilih
                             </button>
+                            <button type="button" onclick="confirmBulkDelete('pesiar')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
+                                Hapus Terpilih
+                            </button>
                         </div>
                     </div>
 
@@ -128,6 +131,9 @@
                             </button>
                             <button type="button" onclick="submitBulk('bermalam', 'reject')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
                                 Tolak Terpilih
+                            </button>
+                            <button type="button" onclick="confirmBulkDelete('bermalam')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
+                                Hapus Terpilih
                             </button>
                         </div>
                     </div>
@@ -634,6 +640,15 @@
         const form = document.getElementById(`bulk-form-pending-${type}`);
         actionInput.value = actionType;
         form.submit();
+    }
+
+    function confirmBulkDelete(type) {
+        const checkedCount = document.querySelectorAll(`.pending-checkbox-${type}:checked`).length;
+        if (checkedCount === 0) return;
+
+        if (confirm(`⚠️ PERINGATAN HAPUS MASAL:\nApakah Anda yakin ingin menghapus ${checkedCount} pengajuan izin terpilih secara permanen?\nData izin yang dihapus tidak dapat dikembalikan!`)) {
+            submitBulk(type, 'delete');
+        }
     }
 
     function singleAction(actionType, id) {

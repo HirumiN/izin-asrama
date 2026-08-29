@@ -86,4 +86,26 @@ class PrayerMonitoringController extends Controller
             'search'
         ));
     }
+
+    /**
+     * Menghapus record presensi shalat untuk mahasiswa terpilih pada tanggal tertentu.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'student_ids'   => 'required|array',
+            'student_ids.*' => 'exists:students,id',
+            'date'          => 'required|date',
+        ], [
+            'student_ids.required' => 'Pilihlah minimal satu mahasiswa untuk dihapus absensinya.',
+            'date.required'        => 'Tanggal absensi wajib ditentukan.',
+        ]);
+
+        $count = PrayerAttendance::whereIn('student_id', $request->student_ids)
+            ->whereDate('date', $request->date)
+            ->delete();
+
+        return redirect()->route('admin.sholat.index', ['date' => $request->date])
+            ->with('success', "Berhasil menghapus {$count} data presensi shalat pada tanggal {$request->date}.");
+    }
 }
