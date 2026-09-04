@@ -50,14 +50,13 @@
                             </svg>
                         </div>
                         <div>
-                            <label for="global-pesiar-return-time" class="block text-xs font-bold text-slate-800">Batas Waktu Kembali Pesiar Hari Ini (Format 0-24 Jam)</label>
+                            <label for="global-pesiar-return-time" class="block text-xs font-bold text-slate-800">Batas Waktu Kembali Pesiar Hari Ini</label>
                             <p class="text-[11px] text-slate-500 font-medium">Batas jam kembali ini akan diterapkan untuk semua persetujuan Izin Pesiar (ACC Mandiri / Bulk).</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         <input type="time" id="global-pesiar-return-time" value="22:00" onchange="syncPesiarReturnTime(this.value)"
                             class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none shadow-sm">
-                        <span class="text-xs font-bold text-slate-600">WIB (0-24)</span>
                     </div>
                 </div>
 
@@ -81,9 +80,7 @@
                             <button type="button" onclick="submitBulk('pesiar', 'reject')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
                                 Tolak Terpilih
                             </button>
-                            <button type="button" onclick="confirmBulkDelete('pesiar')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
-                                Hapus Terpilih
-                            </button>
+        
                         </div>
                     </div>
 
@@ -903,10 +900,9 @@
             <form id="action-modal-form" method="POST" class="space-y-4">
                 @csrf
                 <div id="wrapper-custom-return-time" class="hidden">
-                    <label for="custom_return_time" class="block text-sm font-semibold text-slate-700">Jam Batas Kembali Pesiar (Format 00:00 - 24:00)</label>
+                    <label for="custom_return_time" class="block text-sm font-semibold text-slate-700">Jam Batas Kembali Pesiar</label>
                     <input type="time" name="custom_return_time" id="custom_return_time" value="22:00"
                         class="w-full mt-1.5 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm">
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Batas jam kembali (format 24 jam) otomatis disesuaikan dari Pengaturan Batas Pesiar di luar.</p>
                 </div>
 
                 <div>
