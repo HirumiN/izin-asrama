@@ -41,13 +41,39 @@
                     Tidak ada pengajuan masuk untuk Izin Pesiar.
                 </div>
             @else
+                <!-- PENGATURAN BATAS WAKTU KEMBALI PESIAR (DI LUAR MODAL/ACC) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-50 border border-slate-200/80 rounded-xl shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 border border-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="white" class="w-5 h-5 text-white">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <label for="global-pesiar-return-time" class="block text-xs font-bold text-slate-800">Batas Waktu Kembali Pesiar Hari Ini (Format 0-24 Jam)</label>
+                            <p class="text-[11px] text-slate-500 font-medium">Batas jam kembali ini akan diterapkan untuk semua persetujuan Izin Pesiar (ACC Mandiri / Bulk).</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <input type="time" id="global-pesiar-return-time" value="22:00" onchange="syncPesiarReturnTime(this.value)"
+                            class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none shadow-sm">
+                        <span class="text-xs font-bold text-slate-600">WIB (0-24)</span>
+                    </div>
+                </div>
+
                 <form action="{{ route('admin.permits.bulk') }}" method="POST" id="bulk-form-pending-pesiar" class="space-y-4">
                     @csrf
                     <input type="hidden" name="action" id="bulk-action-type-pesiar" value="">
+                    <input type="hidden" name="custom_return_time" id="bulk-pesiar-return-time" value="22:00">
 
                     <!-- Bulk Action Controls -->
                     <div id="bulk-controls-pesiar" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-blue-50 border border-blue-150 rounded-xl transition duration-300">
-                        <span class="text-xs font-bold text-blue-800" id="bulk-selected-count-pesiar">0 terpilih</span>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-xs font-bold text-blue-800" id="bulk-selected-count-pesiar">0 terpilih</span>
+                            <span class="text-xs text-blue-700 font-medium bg-blue-100/70 border border-blue-200 rounded-lg px-2.5 py-1">
+                                Batas Kembali: <strong id="bulk-display-return-time" class="font-bold text-blue-900">22:00 WIB</strong>
+                            </span>
+                        </div>
                         <div class="flex items-center gap-2">
                             <button type="button" onclick="submitBulk('pesiar', 'approve')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-md transition duration-150 transform active:scale-[0.98]">
                                 Setujui Terpilih
@@ -573,8 +599,31 @@
         }
     }
 
-    // Handler untuk checkbox massal / bulk action
+    // Synchronize global Pesiar return time setting with bulk form and approval modal
+    function syncPesiarReturnTime(val) {
+        if (!val) return;
+        localStorage.setItem('pesiar_return_time', val);
+
+        const bulkInput = document.getElementById('bulk-pesiar-return-time');
+        if (bulkInput) bulkInput.value = val;
+
+        const bulkDisplay = document.getElementById('bulk-display-return-time');
+        if (bulkDisplay) bulkDisplay.textContent = val + ' WIB';
+
+        const modalInput = document.getElementById('custom_return_time');
+        if (modalInput) modalInput.value = val;
+    }
+
+    // Handler untuk checkbox massal / bulk action & inisialisasi pengaturan jam pesiar
     document.addEventListener('DOMContentLoaded', function() {
+        // Inisialisasi batas waktu pesiar dari localStorage atau default 22:00
+        const savedTime = localStorage.getItem('pesiar_return_time') || '22:00';
+        const globalInput = document.getElementById('global-pesiar-return-time');
+        if (globalInput) {
+            globalInput.value = savedTime;
+        }
+        syncPesiarReturnTime(savedTime);
+
         // Setup bulk action untuk Pesiar Pending
         setupBulkHandlers('pesiar');
         
@@ -596,6 +645,10 @@
         const containerId = e.detail.containerId;
         if (containerId === 'container-pending-pesiar') {
             setupBulkHandlers('pesiar');
+            const savedTime = localStorage.getItem('pesiar_return_time') || '22:00';
+            const globalInput = document.getElementById('global-pesiar-return-time');
+            if (globalInput) globalInput.value = savedTime;
+            syncPesiarReturnTime(savedTime);
         } else if (containerId === 'container-pending-bermalam') {
             setupBulkHandlers('bermalam');
         }
@@ -639,6 +692,12 @@
         const actionInput = document.getElementById(`bulk-action-type-${type}`);
         const form = document.getElementById(`bulk-form-pending-${type}`);
         actionInput.value = actionType;
+
+        if (type === 'pesiar' && actionType === 'approve') {
+            const globalTime = document.getElementById('global-pesiar-return-time')?.value || localStorage.getItem('pesiar_return_time') || '22:00';
+            syncPesiarReturnTime(globalTime);
+        }
+
         form.submit();
     }
 
@@ -678,6 +737,9 @@
 
             if (permitType === 'pesiar') {
                 wrapperCustomTime.classList.remove('hidden');
+                const activeTime = document.getElementById('global-pesiar-return-time')?.value || localStorage.getItem('pesiar_return_time') || '22:00';
+                const customInput = document.getElementById('custom_return_time');
+                if (customInput) customInput.value = activeTime;
             } else {
                 wrapperCustomTime.classList.add('hidden');
             }
@@ -841,10 +903,10 @@
             <form id="action-modal-form" method="POST" class="space-y-4">
                 @csrf
                 <div id="wrapper-custom-return-time" class="hidden">
-                    <label for="custom_return_time" class="block text-sm font-semibold text-slate-700">Jam Batas Kembali Pesiar (Kustom)</label>
+                    <label for="custom_return_time" class="block text-sm font-semibold text-slate-700">Jam Batas Kembali Pesiar (Format 00:00 - 24:00)</label>
                     <input type="time" name="custom_return_time" id="custom_return_time" value="22:00"
                         class="w-full mt-1.5 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition duration-200 text-sm shadow-sm">
-                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Batas jam kembali default 22:00 WIB. Anda dapat menyesuaikannya untuk pengajuan pesiar ini.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Batas jam kembali (format 24 jam) otomatis disesuaikan dari Pengaturan Batas Pesiar di luar.</p>
                 </div>
 
                 <div>

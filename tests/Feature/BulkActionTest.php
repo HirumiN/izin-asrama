@@ -102,6 +102,50 @@ class BulkActionTest extends TestCase
         $this->assertDatabaseMissing('permits', ['id' => $permit2->id]);
     }
 
+    public function test_bulk_approve_pesiar_permits_with_custom_return_time()
+    {
+        $pengelolaUser = User::factory()->create(['role' => 'pengelola']);
+
+        $user1 = User::factory()->create(['role' => 'mahasiswa']);
+        $student1 = $user1->student()->create(['nim' => 'NIM202', 'dorm_room' => 'B-202']);
+
+        $user2 = User::factory()->create(['role' => 'mahasiswa']);
+        $student2 = $user2->student()->create(['nim' => 'NIM203', 'dorm_room' => 'B-203']);
+
+        $startTime = \Carbon\Carbon::parse('2026-09-04 10:00:00');
+
+        $permit1 = $student1->permits()->create([
+            'type' => 'pesiar',
+            'destination' => 'Pasar',
+            'start_time' => $startTime,
+            'status' => 'pending',
+        ]);
+
+        $permit2 = $student2->permits()->create([
+            'type' => 'pesiar',
+            'destination' => 'Toko Buku',
+            'start_time' => $startTime,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($pengelolaUser)->post(route('admin.permits.bulk'), [
+            'action' => 'approve',
+            'permit_ids' => [$permit1->id, $permit2->id],
+            'custom_return_time' => '21:30',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $response->assertSessionHas('success');
+
+        $permit1->refresh();
+        $permit2->refresh();
+
+        $this->assertEquals('approved', $permit1->status);
+        $this->assertEquals('approved', $permit2->status);
+        $this->assertEquals('21:30:00', $permit1->end_time->format('H:i:s'));
+        $this->assertEquals('21:30:00', $permit2->end_time->format('H:i:s'));
+    }
+
     public function test_bulk_delete_prayer_attendances_deletes_selected_records()
     {
         $pengelolaUser = User::factory()->create(['role' => 'pengelola']);
