@@ -118,17 +118,49 @@ class StudentController extends Controller
     }
 
     /**
+     * Menangguhkan status akun mahasiswa.
+     */
+    public function suspend(Request $request, Student $student)
+    {
+        if ($student->isSuspended()) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Akun mahasiswa ini sudah ditangguhkan.'], 422);
+            }
+
+            return back()->with('error', 'Akun mahasiswa ini sudah ditangguhkan.');
+        }
+
+        $student->is_suspended = true;
+        $student->suspended_at = now();
+        $student->save();
+
+        if ($request->ajax()) {
+            return response()->json(['success' => "Akun {$student->user->name} berhasil ditangguhkan."]);
+        }
+
+        return back()->with('success', "Akun {$student->user->name} berhasil ditangguhkan. Mahasiswa tidak dapat mengajukan izin untuk sementara.");
+    }
+
+    /**
      * Mencabut status penangguhan mahasiswa.
      */
-    public function liftSuspension(Student $student)
+    public function liftSuspension(Request $request, Student $student)
     {
         if (!$student->isSuspended()) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Mahasiswa ini tidak sedang dalam status ditangguhkan.'], 422);
+            }
+
             return back()->with('error', 'Mahasiswa ini tidak sedang dalam status ditangguhkan.');
         }
 
         $student->is_suspended = false;
         $student->suspended_at = null;
         $student->save();
+
+        if ($request->ajax()) {
+            return response()->json(['success' => "Penangguhan untuk {$student->user->name} berhasil dicabut."]);
+        }
 
         return back()->with('success', "Penangguhan untuk {$student->user->name} berhasil dicabut. Mahasiswa kini dapat mengajukan izin kembali.");
     }

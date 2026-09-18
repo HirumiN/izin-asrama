@@ -52,6 +52,7 @@ Route::middleware(['auth', 'role:pengelola'])->prefix('admin')->name('admin.')->
     Route::get('/students', [AdminStudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
     Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
+    Route::post('/students/{student}/suspend', [AdminStudentController::class, 'suspend'])->name('students.suspend');
     Route::post('/students/{student}/lift-suspension', [AdminStudentController::class, 'liftSuspension'])->name('students.liftSuspension');
     Route::post('/students/{student}/reset-password', [AdminStudentController::class, 'resetPassword'])->name('students.resetPassword');
     Route::post('/students/bulk-delete', [AdminStudentController::class, 'bulkDestroy'])->name('students.bulk-delete');

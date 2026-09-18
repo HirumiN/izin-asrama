@@ -184,17 +184,30 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25z" />
                                                 </svg>
-                                                Reset Password
+                                                Reset
                                             </button>
                                         </form>
 
                                         @if($student->isSuspended())
-                                            <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" id="form-lift-{{ $student->id }}">
+                                            <form action="{{ route('admin.students.liftSuspension', $student) }}" method="POST" id="form-lift-{{ $student->id }}" data-student-action="lift">
                                                 @csrf
                                                 <button type="button" 
                                                     onclick="showLiftSuspensionModal({{ Js::from($student->user->name) }}, 'form-lift-{{ $student->id }}')"
                                                     class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-emerald-100 rounded-lg text-xs font-bold hover:bg-emerald-700 transition duration-150 cursor-pointer shadow-sm">
-                                                    Cabut Penangguhan
+                                                    Buka
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.students.suspend', $student) }}" method="POST" id="form-suspend-{{ $student->id }}" data-student-action="suspend">
+                                                @csrf
+                                                <button type="button" 
+                                                    onclick="showSuspendModal({{ Js::from($student->user->name) }}, 'form-suspend-{{ $student->id }}')"
+                                                    class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 border border-orange-600 text-white rounded-lg text-xs font-bold transition duration-150 cursor-pointer shadow-sm flex items-center gap-1.5"
+                                                    title="Tangguhkan Akun">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                                    </svg>
+                                                    Blokir
                                                 </button>
                                             </form>
                                         @endif
@@ -209,7 +222,6 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                 </svg>
-                                                Hapus
                                             </button>
                                         </form>
                                     </div>
@@ -307,6 +319,29 @@ function showLiftSuspensionModal(name, formId) {
     const btn = document.getElementById('confirm-modal-submit-btn');
     btn.className = 'px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
     btn.textContent = 'Ya, Cabut Penangguhan';
+
+    openActionModal();
+}
+
+function showSuspendModal(name, formId) {
+    targetFormId = formId;
+
+    document.getElementById('confirm-modal-title').textContent = 'Tangguhkan Akun';
+    document.getElementById('confirm-modal-message').textContent = 'Apakah Anda yakin ingin menangguhkan akun mahasiswa ini?';
+
+    const detailBox = document.getElementById('confirm-modal-detail');
+    detailBox.innerHTML = `
+        <div class="text-slate-600 font-medium">Mahasiswa: <strong class="text-slate-900 font-bold">${name}</strong></div>
+        <div class="text-amber-600 font-semibold mt-1">⚠️ Selama ditangguhkan, mahasiswa tidak dapat mengajukan izin keluar asrama.</div>
+    `;
+
+    const iconBg = document.getElementById('confirm-modal-icon-bg');
+    iconBg.className = 'p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 shrink-0';
+    iconBg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>`;
+
+    const btn = document.getElementById('confirm-modal-submit-btn');
+    btn.className = 'px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm rounded-xl shadow-md transition duration-150 cursor-pointer';
+    btn.textContent = 'Ya, Tangguhkan';
 
     openActionModal();
 }
@@ -418,10 +453,67 @@ function closeActionModal() {
 }
 
 function submitActionModalForm() {
-    if (targetFormId) {
-        const form = document.getElementById(targetFormId);
-        if (form) form.submit();
+    if (!targetFormId) return;
+    const form = document.getElementById(targetFormId);
+    if (!form) return;
+
+    // Aksi berbasis AJAX: jangan navigasi, cukup fetch lalu refresh daftar di tempat
+    if (form.dataset.studentAction === 'lift' || form.dataset.studentAction === 'suspend') {
+        submitStudentAjaxAction(form);
+        return;
     }
+
+    form.submit();
+}
+
+function submitStudentAjaxAction(form) {
+    closeActionModal();
+
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        const data = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(data?.error || 'Gagal mencabut penangguhan.');
+        return data;
+    })
+    .then(data => {
+        refreshStudentsList(() => showAjaxAlert(data.success));
+    })
+    .catch(err => {
+        refreshStudentsList(() => showAjaxAlert(err.message, 'error'));
+    });
+}
+
+function showAjaxAlert(message, type = 'success') {
+    const container = document.getElementById('container-students');
+    if (!container || !message) return;
+
+    const existing = document.getElementById('ajax-flash-alert');
+    if (existing) existing.remove();
+
+    const div = document.createElement('div');
+    div.id = 'ajax-flash-alert';
+    div.className = 'mb-4 flex items-center gap-3 p-4 rounded-xl transition duration-300 ' +
+        (type === 'success'
+            ? 'text-emerald-800 bg-emerald-50 border border-emerald-200'
+            : 'text-rose-800 bg-rose-50 border border-rose-200');
+
+    const icon = type === 'success'
+        ? '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 shrink-0 text-emerald-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 shrink-0 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>';
+
+    div.innerHTML = icon + '<span class="text-sm font-semibold">' + message + '</span>';
+    container.prepend(div);
+
+    setTimeout(() => {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => div.remove(), 500);
+    }, 5000);
 }
 
 // Esc key to close modal
@@ -457,7 +549,7 @@ document.addEventListener('keydown', function(e) {
         return qs ? base + '?' + qs : base;
     }
 
-    function fetchResults() {
+    function fetchResults(onDone) {
         const url = buildUrl();
 
         container.style.opacity = '0.5';
@@ -486,6 +578,8 @@ document.addEventListener('keydown', function(e) {
                     const params = new URLSearchParams(window.location.search);
                     exportBtn.href = params.toString() ? exportBase + '?' + params.toString() : exportBase;
                 }
+
+                if (typeof onDone === 'function') onDone();
             })
             .catch(err => {
                 console.error('AJAX fetch failed:', err);
@@ -493,6 +587,9 @@ document.addEventListener('keydown', function(e) {
                 window.location.href = url;
             });
     }
+
+    // Ekspor agar bisa dipanggil oleh aksi AJAX lain (mis. cabut penangguhan)
+    window.refreshStudentsList = fetchResults;
 
     // Realtime search dengan debounce
     searchInput.addEventListener('input', function() {
