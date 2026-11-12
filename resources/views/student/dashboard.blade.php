@@ -74,7 +74,7 @@
                                 Izin Izin Aktif / Sedang Keluar
                             </span>
                             <h2 class="text-xl font-bold text-slate-900 mt-3">
-                                Izin {{ ucfirst($activePermit->type) }} ke {{ $activePermit->destination }}
+                                <strong class="text-blue-600">{{ $student->user->name }}</strong> Izin {{ ucfirst($activePermit->type) }} ke {{ $activePermit->destination }}
                             </h2>
                         </div>
                         <div class="p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-600">
